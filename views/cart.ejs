@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <style>
+    @media (max-width:420px) {
+      .Checkout{
+        width:100% !important;
+        
+      }
+      .Checkout h4{
+        margin-left: 20% !important;
+      }
+    }
+  </style>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="https://js.stripe.com/v3/"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+</head>
+<body>
+<div class="container">
+
+    <a href="/home"><i class="fas fa-arrow-left p-2"></i></a>
+    <table class="table mt-2">
+        <thead class="thead-dark">
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Product</th>
+            <th scope="col">Price</th>
+            <th scope="col">Quantity</th>
+            <th scope="col">Edit</th>
+          </tr>
+        </thead>
+        <tbody>
+            <%if(cart_details!=null){%>
+                <%cart_details.forEach((product,i)=>{%>
+                    <tr>
+                        <th scope="row"><%=i+1%></th>
+                        <td><%=product.title%></td>
+                        <td><%=product.price * product.quantity%></td>
+                        <td><%=product.quantity%></td>
+                        <td><a href="/cancel/<%=product._id%>" class="btn btn-dark"><i class="fas fa-trash"></i></a>
+                        <a href="/increase/<%=product._id%>" class="inc btn btn-light"><i class="fas fa-plus"></i></a>  
+                      <%if(product.quantity==0){%>
+                        <a href="#" class="dec btn btn-warning"><i class="fas fa-minus"></i></a>  
+                         <%}else{%>
+                          <a href="/decrease/<%=product._id%>" class="dec btn btn-warning"><i class="fas fa-minus"></i></a>  
+                        
+                          <%}%>
+                      </td>
+
+                         
+            
+           <%})%>
+
+<%}else{%>
+    <h2>Cart Empty</h2>      
+   <%}%>
+
+  
+        </tbody>
+      </table>
+      <div class="Checkout  d-flex justify-content-between align-items-center"><button class="btn btn-primary ml-5" id="stripe-checkout">Checkout</button>    
+    <h4 style="margin-right: 57%;">Total: <%=total%></h4>
+    </div>
+      
+    </div>
+
+   
+
+<script>
+document.querySelector(".inc").addEventListener("click",()=>{
+  fetch("/increase")
+})
+
+
+//payment
+var btn=document.getElementById("stripe-checkout");
+btn.addEventListener("click",()=>{
+
+  fetch("/create-checkout-session",{
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json",
+      
+    },
+    body:
+      JSON.stringify({
+        items:[
+          {
+           amount:"<%=total%>"
+          }
+        ]
+      })
+    
+  }).then(res=>{
+    if(res.ok){
+      return res.json();
+    }
+  }).then(({url})=>{
+    console.log(url)
+window.location=url;
+
+  }).catch(err=>{
+    console.log(err);
+  })
+})
+
+
+</script>
+
+
+    </body>
+    </html>
