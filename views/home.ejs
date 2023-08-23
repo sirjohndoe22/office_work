@@ -1,7 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@10..48,400;10..48,500;10..48,600&family=Roboto+Condensed:wght@400;700&display=swap');
+    </style>
     <meta charset="UTF-8">
+    <link rel="stylesheet" href="/style/css.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,45 +13,90 @@
 
 
 </head>
-<body>
-
+<body style="background-color:cyan;font-family: Roboto Condensed', sans-serif;">
+  <div class=" d-flex bg-light shadow-sm p-4 justify-content-between align-items-center w-100"> 
+    <h2 style="font-family:Bricolage Grotesque;color:navy;">E-Commerce</h2> <div><a href="/cart">
+      <%if(carts.length>=1){%>
+        <a href="/cart" style="font-size:19px" class="text-blue"><i class="text-blue fas fa-shopping-cart" ><span class="badge bg-dark text-white rounded-pill p-1" style="font-size:10px"> <%=carts.length%></span></i></a>
+         
+   
+      
+    <%}else{%>
+    
+    <a  style="font-size:22px"><i class="text-blue fas fa-shopping-cart" ></i></a>
+    <%}%>
+    <a href="/logout" class="ml-5 text-blue" style="font-size:22px"><i class="fas fa-sign-out"></i></a></div></div>
+    
 
     <div class="container">
        
       <%-include ("./partials/messages.ejs")%>
-      <div class="d-flex justify-content-between align-items-center w-100"> 
-        <h2>Categories</h2> <div><a href="/cart">
-          <%if(carts.length>=1){%>
-            <span class="badge bg-dark text-white rounded-pill">
-              <%=carts.length%>
-             
-       
-        </span>
-        <%}%>
-        <i class="fas fa-shopping-cart" ></i></a>
-        <a href="/logout" class="ml-3"><i class="fas fa-sign-out"></i></a></div></div>
+     <h5 class="mt-3">Categories</h5>
         <a href="#">Laptops -></a>
-     <div class="products d-flex justify-content-between  flex-wrap wrap align-items-center">
-     <%data.forEach((product)=>{%>
-        <div class="card m-4" style="width: 18rem;">
-            <img src="<%=product.img%>" class="card-img-top shadow-md" alt="...">
-            <div class="card-body">
-              <h5 class="card-title"><%=product.title%></h5>
-              <p class="card-text">
-              <%if(product.desc.length>110){%>
-                  <%=product.desc.substring(0,95)+'...'%>
-                <%}else{%>
-                 <%=product.desc%>
-<%}%>
-              </p>
-              <a href="/product/<%=product.id%>" class="btn btn-primary">View Product</a>
-            </div>
-          </div>
-     
-    <%})%>
-     </div>
-
+     <div class="mt-5 mb-5" style="border-radius:15px;width:100%;position:relative;height:300px;background-image: url(/assets/showcase.png);background-position: center;background-repeat: no-repeat;background-size: cover;">
     </div>
+ 
+
+     <div   class="products d-flex justify-content-between  flex-wrap wrap align-items-center">
+     
+      <%data.forEach((product)=>{%>
+        <div class="product d-flex bg-white mb-4 justify-content-between align-items-center flex-column" 
+     style="box-shadow: 0 1px 2px rgba(0,0,0,0.3);position:relative;width:27%;height:400px">
+      
+     <div class="p-2"><h3><%=product.title%> $<%=product.price%></h3></div>
+      
+      <div style="position: relative;width:88%;height:70%;background-image: url(<%=product.img%>);
+       background-position: center;background-repeat: no-repeat;
+       background-size: cover;">
+         
+       </div>
+     
+       <div class="p-1"><a href="/product/<%=product.id%>">See Product <i class="fas fa-arrow-right"></i></a></div>
+     </div>
+    
+    
+   <%})%>
+     </div>
+    </div>
+
+<div class="footer bg-dark text-white d-flex flex-column justify-content-between align-items-center">
+<div class="d-flex justify-content-between align-items-center" style="position:relative;width:100%;">
+  <h5 class="ml-5">E-Commerce</h5> 
+
+  <div class="mr-5 d-flex p-4 justify-content-between align-items-center">
+    <ul class="d-flex justify-content-between align-items-left flex-column">
+      <li style="font-weight: 600;">Partners</li>
+      <li>Amazon</li>
+      <li>AliBaba</li>
+      <li>Daraz</li>
+      <li>Careem</li>
+      <li>dailyMart</li>
+    </ul>
+
+    <ul class="d-flex justify-content-between align-items-left flex-column">
+      <li style="font-weight: 600;">Products</li>
+      <li>Dell</li>
+      <li>Hp</li>
+      <li>Toshiba</li>
+      <li>Msi</li>
+      <li>Apple</li>
+    </ul>
+
+    <ul class="d-flex justify-content-between align-items-left flex-column">
+      <li style="font-weight: 600;">Afiliations</li>
+      <li>Google</li>
+      <li>Microsoft</li>
+      <li>IBM</li>
+      <li>Systems LTD</li>
+      <li>Apple</li>
+    </ul>
+  </div>
+</div>
+<div class="text-dark text-center" style="position: relative;width:100%;"><div > <p style="font-weight: 500;">Coprights &copy; e-commerce 2023</p></div></div>
+
+</div>
+
+
 
     <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>

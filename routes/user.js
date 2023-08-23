@@ -13,7 +13,7 @@ const stripe = require("stripe")("sk_test_51MChyzBI9N1H7B260CVlRMbduZ0hBRdd5FFPS
 
 router.get("/",(req,res)=>{
     
-    res.send(data);
+    res.redirect("/login")
  });
  router.get("/login",(req,res)=>{
      res.render("login");
