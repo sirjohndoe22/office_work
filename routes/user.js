@@ -6,7 +6,7 @@ const mongoose=require("mongoose");
 const auth=require("../helper/auth");
 const Cart=require("../model/cart");
 const router=express.Router();
-const stripe = require("stripe")("sk_test_51MChyzBI9N1H7B260CVlRMbduZ0hBRdd5FFPSAs8SK7un8m8KRP0UMCUu6z5qqvFN9Au51jevi0JWqdUIwJdFOCf00nHKKzVvB")
+const stripe = require("stripe")(process.env.Secret_Key)
 
 
 
