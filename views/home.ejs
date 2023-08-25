@@ -23,7 +23,7 @@
       
     <%}else{%>
     
-    <a  style="font-size:22px"><i class="text-blue fas fa-shopping-cart" ></i></a>
+    <a  style="font-size:22px"><i class=" cart text-blue fas fa-shopping-cart" ></i></a>
     <%}%>
     <a href="/logout" class="ml-5 text-blue" style="font-size:22px"><i class="fas fa-sign-out"></i></a></div></div>
     
@@ -31,9 +31,9 @@
     <div class="container">
        
       <%-include ("./partials/messages.ejs")%>
-     <h5 class="mt-3">Categories</h5>
+     <h5 class="mt-3 text-dark">Categories</h5>
         <a href="#">Laptops -></a>
-     <div class="mt-5 mb-5" style="border-radius:15px;width:100%;position:relative;height:300px;background-image: url(/assets/showcase.png);background-position: center;background-repeat: no-repeat;background-size: cover;">
+     <div class="shower mt-5 mb-5" style="border-radius:15px;width:100%;position:relative;height:300px;background-image: url(/assets/showcase.png);background-position: center;background-repeat: no-repeat;background-size: cover;">
     </div>
  
 
@@ -41,7 +41,7 @@
      
       <%data.forEach((product)=>{%>
         <div class="product d-flex bg-white mb-4 justify-content-between align-items-center flex-column" 
-     style="box-shadow: 0 1px 2px rgba(0,0,0,0.3);position:relative;width:27%;height:400px">
+     >
       
      <div class="p-2"><h3><%=product.title%> $<%=product.price%></h3></div>
       

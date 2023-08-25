@@ -1,3 +1,248 @@
+*{
+    margin:0;
+    padding:0;
+    box-sizing: border-box;
+}
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@10..48,400;10..48,500;10..48,600&family=Roboto+Condensed:wght@400;700&display=swap');
+    
+
+body{
+    line-height: 1.6em !important;
+    font-size: 16px !important;
+    background-color: cyan !important;
+    font-family:"Roboto sans-serif"  !important;
+    color:white !important;
+}
+
+/*landing page*/
+
+
+.my-container{
+    display: flex;
+    position: relative;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    overflow-x: hidden;
+}
+navbar{
+    position: relative;
+    overflow:hidden;
+    width:100%;
+    height:50px;
+    padding:5px;
+    padding-top: 10px;
+    background-color: black;
+    border-bottom:1px solid rgba(255,255,255,0.6);
+}
+navbar ul li{
+    list-style: none;
+    
+}
+
+navbar ul a{
+    text-decoration: none !important;
+    color:white;
+}
+
+.s1{
+    position:relative;
+    color:white;
+    height:350px;
+    padding:0 10%;
+    background-image: url("/assets/show.jpg");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+
+}
+
+navbar ul a:hover{
+    color:red;
+    
+}
+
+
+
+.s1-left p{
+    width:60%;
+}
+.s1-left{
+    position:relative;
+    width:60%;
+    overflow: hidden;
+    padding:10px;
+    height:80%;
+    
+}
+.s1-left a:hover{
+    background-color: black;
+    color:white;
+    border:1px solid white;
+}
+.s1-left a{
+    transition: all 0.2s ease-in-out;
+    display: inline-block;
+    width:20%;
+    padding: 3px 5px;
+    background-color: white;
+    color:black;
+    text-decoration: none !important;
+    border-radius: 10px;
+}
+.sl-right{
+    position:relative;
+    width:40%;
+    overflow: hidden;
+    height:85%;
+    
+}
+.sl-right img{
+    position:relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width:100%;
+    height:100%;
+}
+
+.s2{
+    position:relative;
+    width:80%;
+    height: 150px;
+    color:black;
+    padding:24px;
+    margin-top: 5%;
+}
+
+.s2 div{
+    text-align: center;
+}
+.s2 div i{
+    font-size: 50px;
+    color:red;
+
+}
+.s2 h5{
+    font-weight: 500;
+}
+
+.s3{
+    position:relative;
+    width:80%;
+    height:400px;
+    margin: 5%;
+}
+
+.s3-left,.s3-right{
+    display: flex;
+    position:relative;
+    border-radius: 12px;
+    justify-content: center;
+    color:black;
+    padding:15px;
+    align-items: center;
+    width:49%;
+    height:100%;
+}
+.s3-left a,.s3-right a{
+padding:7px 9px;
+border-radius: 15px;
+background: transparent;
+color:black;
+border: 1.5px solid rgba(0,0,0,0.6);
+letter-spacing: 0.8px;
+text-decoration: none !important;
+transform: all 0.2s ease-in-out;
+}
+.s3-left a:hover,.s3-right a:hover{
+   transform: scale(1.2);
+   color:black;
+}
+
+.s3-left h5,.s3-right h5,.s3-right h2,.s3-left h2{
+font-weight: 500;
+color:white;
+
+}
+.s3-left{
+    background:linear-gradient(245deg,lightblue,pink);
+}
+.s3-right{
+    background:linear-gradient(245deg,orange,yellow);
+}
+
+.inner-s3{
+    overflow: hidden;
+    position:relative;
+    width: 55%;
+    display: flex;
+    justify-content: center;
+    align-items: centers;
+    height:50%;
+    padding:10px;
+}
+.inner-s3 img{
+    position: inherit;
+    width:100%;
+    height: 100%;
+}
+.s4{
+    position:relative;
+    margin-top: 5%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width:100%;
+    background-color: honeydew;
+    height:700px;
+    padding:30px;
+}
+.s4-left,.s4-right{
+    position: relative;
+    display:flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    width:42%;
+    height:80%;
+}
+.s4-left{
+    background-image: url("/assets/atak.jpg");
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+.overlay{
+    position: absolute;
+    width:100%;
+    background-color: rgba(0,0,0,0.4);
+    z-index:50;
+    height:100%;
+}
+
+.s4-left h2,h1,h3,a{
+    z-index: 60;
+    font-weight: 500;
+    
+}
+.s4-left a{
+    padding:4px 5px;
+    background-color: lightblue;
+    color:honeydew;
+    text-decoration: none !important;
+    width:42%;
+    border-radius: 10px;
+}
+.s4-right{
+    background-color: cyan;
+    
+}
+
+
+.product{
+    box-shadow: 0 1px 2px rgba(0,0,0,0.3);position:relative;width:27%;height:400px;
+}
 .product:hover{
     transform:scale(1.02);
     transition: 0.16s ease-in-out all;
@@ -13,4 +258,17 @@
 .footer div ul li{
 list-style: none;
 
+}
+
+@media (max-width:420px) {
+    .products{
+        flex-direction: column;
+    }
+    .product{
+        width:80%;
+    }
+    .shower{
+        display: none;
+    }
+    
 }
