@@ -1,18 +1,18 @@
 const local_strategy=require("passport-local").Strategy;
 const mongoose=require("mongoose");
-const User=require("../model/user");
+const Admin=require("../model/admin");
 const passport=require("passport");
 
 module.exports= (passport)=>{
-    passport.use('local',new local_strategy({
+    passport.use('admin',new local_strategy({
               usernameField:'email'
     },(email,password,done)=>{
-             User.findOne({email:email}).then((user)=>{
+             Admin.findOne({email:email}).then((user)=>{
                  if(!user)
                  return done(null,false,{type:'error_msg',message:"user not found"});
                  if(user){
                      if(password===user.password){
-                         return done(null,user, { authInfo: 'user' })
+                         return done(null,user,{authInfo:'admin'})
                      }
                      else{
                          

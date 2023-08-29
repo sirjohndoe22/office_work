@@ -169,6 +169,19 @@ form input:focus,form input:checked{
 .z{
     z-index:20;
 }
+.admin-s1 a{
+    transition: all 0.2s ease-in-out;
+}
+.admin-s1{
+    position: absolute;
+    right:15px;
+    top:15px;
+}
+.admin-s1 a:hover{
+background-color: honeydew !important;
+
+}
+
 
 @media(max-width:400px){
     .login-div{
@@ -178,6 +191,10 @@ form input:focus,form input:checked{
     .forget{
         font-weight: bold;
         font-size: 17px;
+    }
+    .admin-s1 a{
+        padding:6px 6px;
+        font-size: 12px;
     }
     .logo{
         top:24px;

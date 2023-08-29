@@ -16,25 +16,23 @@
 </div>
 
 
-<div class="admin-s1">
-    <a href="/admin_login" style="border-radius: 25px;background-color: cyan;
-    padding: 8px 8px;border:0.8px solid rgba(0,0,0,0.5);color:black;text-decoration: none;">Login as Admin</a>
-</div>
+
 
         <div class="login-div">
             <div class="form-head">
             <h1>Login</h1>
-       <p>Stay Connected</p>
-       </div>
-       <%-include ("./partials/messages.ejs")%>
       
-       <form class="login-form" action="/login" method="post" name="log-form">   
-       <input type='email' name="email" placeholder="Email">
+       </div>
+    
+       <%-include ("./partials/messages.ejs")%>
+        
+       <form class="login-form" action="/admin_login" method="post" name="log-form">   
+       
+        <input type='email' name="email" placeholder="Email">
        <input type="password" name="password" placeholder="Password">
 
        
-       <button type="submit" class="log-btn">Login</button>
-       <p class="below-p">New to E-Commerce? <a href="/signup">Join now</a></p>
+       <button type="submit" class="log-btn">Login As Admin</button>
        </form>
 </div>
 

@@ -2,8 +2,11 @@ const express=require("express");
 const User=require("../model/user");
 const passport=require("passport");
 require("../Config/strategy")(passport);
+require("../Config/admin_strategy")(passport);
 const mongoose=require("mongoose");
-const auth=require("../helper/auth");
+const Admin=require("../model/admin");
+const user_auth=require("../helper/user");
+const admin_auth=require("../helper/admin");
 const Cart=require("../model/cart");
 const router=express.Router();
 const stripe = require("stripe")(process.env.Secret_Key)
@@ -13,7 +16,7 @@ const stripe = require("stripe")(process.env.Secret_Key)
 
 router.get("/",(req,res)=>{
     
-    res.render("index.ejs")
+    res.render("login")
  });
  router.get("/login",(req,res)=>{
      res.render("login");
@@ -49,6 +52,45 @@ router.get("/",(req,res)=>{
      (req,res,next)
  })
  
+//admin login
+
+router.get("/admin_login",(req,res)=>{
+    res.render("admin-login")
+})
+
+router.post("/admin_login",(req,res,next)=>{
+    try{
+     var email=req.body.username;
+    var password=req.body.password;
+    if(email==='' || email ===null){
+        req.flash("error_msg","Enter username");
+        res.redirect("/admin_login");
+        res.end();
+    }
+    else if(password==="" || password===null){
+        req.flash("error_msg","Password missing");
+        res.redirect("/admin_login");
+        res.end();
+        
+    }
+    else{
+    next();
+}
+}catch(err){
+console.log(err);
+}
+},(req,res,next)=>{
+passport.authenticate('admin',{
+    successRedirect:'/dashboard',
+    failureRedirect:"/admin_login",
+    failureFlash:true
+})
+(req,res,next)
+})
+
+
+
+
  router.get("/signup",(req,res)=>{
      res.render("signup");
  })
@@ -93,9 +135,9 @@ router.get("/",(req,res)=>{
  })
 
 
- router.get("/dashboard",auth,async (req,res)=>{
+ router.get("/dashboard",async (req,res)=>{
     try{
-   const data=await User.findById(req.user).then((user)=>{
+   const data=await Admin.findById(req.user).then((user)=>{
         if(user){
             res.sendStatus=200;
             res.render('dashboard',{
@@ -117,7 +159,7 @@ router.get("/",(req,res)=>{
 }
 })
 
-router.get("/home",auth,async(req,res)=>{
+router.get("/home",user_auth,async(req,res)=>{
     const id=req.user;
     const users =await Cart.find({userId:id}).sort({ _id: -1 }).limit(20)
    .then(user=>{
@@ -127,7 +169,7 @@ router.get("/home",auth,async(req,res)=>{
             carts:user
         })
     }
-   })
+})
     
     
     
@@ -135,7 +177,7 @@ router.get("/home",auth,async(req,res)=>{
 
 //getting product by its id
 
-router.get("/product/:id",auth,async(req,res)=>{
+router.get("/product/:id",user_auth,async(req,res)=>{
 
     try{
 
@@ -156,7 +198,7 @@ router.get("/product/:id",auth,async(req,res)=>{
 })
 
 
-router.get("/addcart/:id",auth,async(req,res)=>{
+router.get("/addcart/:id",user_auth,async(req,res)=>{
    
  try{
         const userId=req.user;
@@ -182,7 +224,7 @@ router.get("/addcart/:id",auth,async(req,res)=>{
 
 
 })
-router.get("/cart",auth,async(req,res)=>{
+router.get("/cart",user_auth,async(req,res)=>{
     try{
 const id =req.user;
 const users =await Cart.find({userId:id}).sort({ _id: -1 }).limit(20)
@@ -212,7 +254,7 @@ if(users){
 })
 
 
-router.get("/cancel/:id",auth,async(req,res)=>{
+router.get("/cancel/:id",user_auth,async(req,res)=>{
     try{
    
         const id=req.params.id
@@ -230,7 +272,7 @@ router.get("/cancel/:id",auth,async(req,res)=>{
 
 //increment
 
-router.get("/increase/:id",async(req,res)=>{
+router.get("/increase/:id",user_auth,async(req,res)=>{
     try{
 
         const id=req.params.id;
@@ -247,7 +289,7 @@ router.get("/increase/:id",async(req,res)=>{
 })
 //decrement
 
-router.get("/decrease/:id",async(req,res)=>{
+router.get("/decrease/:id",user_auth,async(req,res)=>{
     try{
         const id=req.params.id;
         await Cart.findByIdAndUpdate({_id:id},{$inc:{'quantity':-1}}).then(async(product)=>{
@@ -261,7 +303,7 @@ router.get("/decrease/:id",async(req,res)=>{
 })
 
 
-router.post("/create-checkout-session",async(req,res)=>{
+router.post("/create-checkout-session",user_auth,async(req,res)=>{
 try{
 
     const session=await stripe.checkout.sessions.create({

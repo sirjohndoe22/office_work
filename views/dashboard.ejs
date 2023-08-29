@@ -2,12 +2,96 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <style>
+        h1,h5{
+            color:black
+        }
+        h1{
+            font-size:35px !important;
+        }
+
+        h5 i{
+            padding:10px;
+        }
+        .stats{
+            padding:20px;
+        }
+        
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css" integrity="sha512-SzlrxWUlpfuzQ+pcUCosxcglQRNAq/DZjVsC0lE40xsADsfeQoEypE+enwcOiGjk/bSuGGKHEyjSoQ1zVisanQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="/style/css.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
 </head>
 <body>
-    <h1><%=user.username%></h1>
-    <h2><%=user.email%></h2>
-    
+    <div class="navbar-fixed" style="z-index:1020 !important;">
+        <nav class="purple darken-4">
+          <div class="nav-wrapper container">
+              <a href="#" class="brand-logo center mylogo">Admin Panel</a>
+              <a href="#" data-target="mobile-demo" class="sidenav-trigger
+              show-on-large"><i class="fas fa-bars"></i></a>
+              
+              <ul class="sidenav " id="mobile-demo" > 
+                  <li class="myli"><div class="my-view cyan" style="border-bottom:2px solid BLACK  !important;" >
+                      <div class="profile-img">
+                      <img src="/assets/atak.jpg">
+                     </div>
+                      <p style="color: BLACK;font-weight: 600;font-size:22px;text-align:center;"><%=user.username%></p>
+                           
+                              
+                        
+                    </div></li>
+                    <li><a href="/dashboard" class="blue-text active"><i class="fa fa-user blue-text"></i>Dashboard</a></li>
+                    <li><a href="/dashboard/feeds" class="blue-text"><i class="fas fa-box blue-text"></i>Add Product</a></li>
+                    <li><a href="/dashboard/keys" class="blue-text"><i class="fas fa-cog blue-text"></i>Settings</a></li>
+                    <li><a href="/logout" class="blue-text"><i class="fa fa-sign-out blue-text" aria-hidden="true"></i>Logout</a></li>
+              </ul>
+          </div>
+      </nav>
+      </div>
+      
+<div class="container">
+
+<div class="stats row">
+
+<div class="products-count col l5 text-warning col m5 col s5 card">
+<h1>Total Products</h1>
+<h5>150<i class="fas fa-gift"></i></h5>
+</div>
+
+<div class="revenue text-warning card col l5 col m5 col s5" >
+<h1>Total Revenue</h1>
+<h5>$45680 <i class="fas fa-money-bill"></i></h5>
+</div>
+
+<div class="today card col l5 col m5 col s5 text-warning">
+    <h1>Today's Sale</h1>
+    <h5>$4500<i class="fas fa-money-bill"></i></h5>
+</div>
+
+<div class="valuable-item card col l5 col m5 col s5 text-warning">
+<h1>Most Sold Item</h1>
+<h5>MacBook Pro <i class="fas fa-shopping-cart"></i></h5>
+</div>
+
+
+
+</div>
+</div>
+
+
+
+<!--scripts-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
+<script> M.AutoInit();
+ 
+  document.addEventListener('DOMContentLoaded', function() {
+    var elems = document.querySelectorAll('.fixed-action-btn');
+    var instances = M.FloatingActionButton.init(elems, options);
+  });
+  </script>
+        
 </body>
 </html>
