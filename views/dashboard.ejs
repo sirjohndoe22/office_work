@@ -2,22 +2,6 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <style>
-        h1,h5{
-            color:black
-        }
-        h1{
-            font-size:35px !important;
-        }
-
-        h5 i{
-            padding:10px;
-        }
-        .stats{
-            padding:20px;
-        }
-        
-    </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css" integrity="sha512-SzlrxWUlpfuzQ+pcUCosxcglQRNAq/DZjVsC0lE40xsADsfeQoEypE+enwcOiGjk/bSuGGKHEyjSoQ1zVisanQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="/style/css.css">
@@ -26,18 +10,18 @@
 </head>
 <body>
     <div class="navbar-fixed" style="z-index:1020 !important;">
-        <nav class="purple darken-4">
+        <nav class="black darken-4">
           <div class="nav-wrapper container">
               <a href="#" class="brand-logo center mylogo">Admin Panel</a>
               <a href="#" data-target="mobile-demo" class="sidenav-trigger
               show-on-large"><i class="fas fa-bars"></i></a>
               
               <ul class="sidenav " id="mobile-demo" > 
-                  <li class="myli"><div class="my-view cyan" style="border-bottom:2px solid BLACK  !important;" >
+                  <li class="myli"><div class="my-view" style="background-color: black !important ;border-bottom:2px solid BLACK  !important;" >
                       <div class="profile-img">
                       <img src="/assets/atak.jpg">
                      </div>
-                      <p style="color: BLACK;font-weight: 600;font-size:22px;text-align:center;"><%=user.username%></p>
+                      <p style="color: white;font-weight: 600;letter-spacing:1px;font-size:22px;text-align:center;"><%=user.username%></p>
                            
                               
                         
@@ -51,38 +35,98 @@
       </nav>
       </div>
       
-<div class="container">
 
-<div class="stats row">
 
-<div class="products-count col l5 text-warning col m5 col s5 card">
-<h1>Total Products</h1>
-<h5>150<i class="fas fa-gift"></i></h5>
+<div class="stats  row">
+
+<div class="products-count center-align col l5 text-warning col m6 col s12 card">
+<h1>Total Products <i class="fas fa-gift"></i></h1>
+<h5>50</h5>
 </div>
 
-<div class="revenue text-warning card col l5 col m5 col s5" >
-<h1>Total Revenue</h1>
-<h5>$45680 <i class="fas fa-money-bill"></i></h5>
+<div class="revenue text-warning card center-align custom-gap col l5 col m6 col s12" >
+<h1>Total Revenue <i class="fas fa-money-bill"></i></h1>
+<h5 class="amount"></h5>
+<div class="preloader-wrapper small active">
+    <div class="spinner-layer spinner-green-only">
+      <div class="circle-clipper left">
+        <div class="circle"></div>
+      </div><div class="gap-patch">
+        <div class="circle"></div>
+      </div><div class="circle-clipper right">
+        <div class="circle"></div>
+      </div>
+    </div>
+  </div>
+        
 </div>
 
-<div class="today card col l5 col m5 col s5 text-warning">
-    <h1>Today's Sale</h1>
-    <h5>$4500<i class="fas fa-money-bill"></i></h5>
-</div>
 
-<div class="valuable-item card col l5 col m5 col s5 text-warning">
-<h1>Most Sold Item</h1>
-<h5>MacBook Pro <i class="fas fa-shopping-cart"></i></h5>
-</div>
+
+
 
 
 
 </div>
+<div class="row charts ">
+    
+
+    <div class="stats1 col l6 m6 s12">
+        <canvas id="dailyPaymentsChart"></canvas>
 </div>
+
+<div class="col stats2 l6 m6 s12">
+    <canvas id="weeklyPaymentsChart"></canvas>
+    </div>
+
+    <div class="col l12 m12 s12 loader1">
+        <div class="preloader-wrapper small active">
+            <div class="spinner-layer spinner-red-only">
+              <div class="circle-clipper left">
+                <div class="circle"></div>
+              </div><div class="gap-patch">
+                <div class="circle"></div>
+              </div><div class="circle-clipper right">
+                <div class="circle"></div>
+              </div>
+            </div>
+          </div></div>
+
+</div>
+
+
+<div class="row margin-top-2 charts ">
+    <div class="col l4 m6 s12 stats3">
+        <canvas id="dailyPaymentsChart-bar"></canvas>
+</div>
+
+<div class="col l12 m12 s12 loader2">
+    <div class="preloader-wrapper small active">
+        <div class="spinner-layer spinner-red-only">
+          <div class="circle-clipper left">
+            <div class="circle"></div>
+          </div><div class="gap-patch">
+            <div class="circle"></div>
+          </div><div class="circle-clipper right">
+            <div class="circle"></div>
+          </div>
+        </div>
+      </div></div>
+
+<div class="col stats4 l6 m6 s12">
+    <canvas id="weeklyPaymentsChart-line"></canvas>
+    </div>
+</div>
+
+
+
+
+
 
 
 
 <!--scripts-->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
 <script> M.AutoInit();
@@ -91,7 +135,174 @@
     var elems = document.querySelectorAll('.fixed-action-btn');
     var instances = M.FloatingActionButton.init(elems, options);
   });
+
+  document.querySelector(".stats1").style.display='none';
+  document.querySelector(".stats2").style.display='none';
+  document.querySelector(".stats3").style.display='none';
+  document.querySelector(".stats4").style.display='none';
+  
+
+
   </script>
-        
+ 
+ <script>
+    
+    const apiUrl = 'http://localhost:3000/getDailyPayments';
+    
+    // Fetch data from the backend
+    fetch(apiUrl)
+      .then(response => response.json())
+      .then(data => {
+        // Prepare data for the chart
+        const paymentData = data.reduce((result, payment) => {
+          const date = new Date(payment.created * 1000);
+          const dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
+          result[dayName] = (result[dayName] || 0) + payment.amount / 100;
+          document.querySelector(".loader2").style.display='none';
+          document.querySelector(".stats3").style.display='block';
+          document.querySelector(".loader1").style.display='none';
+          document.querySelector(".stats1").style.display='block';
+          
+          return result;
+        }, {});
+
+        // Create a chart using Chart.js
+        const ctx = document.getElementById('dailyPaymentsChart').getContext('2d');
+        new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: Object.keys(paymentData),
+            datasets: [{
+              label: 'Daily Sales',
+              data: Object.values(paymentData),
+              backgroundColor: 'green', // Choose a color
+              borderWidth: 1,
+            }]
+          },
+          options: {
+            scales: {
+              y: {
+                beginAtZero: true,
+                title: {
+                  display: true,
+                  text: 'Payment Amount ($)',
+                },
+              },
+            },
+          },
+        });
+
+        const ctz= document.getElementById('dailyPaymentsChart-bar').getContext('2d');
+        new Chart(ctz, {
+          type: 'pie',
+          data: {
+            labels: Object.keys(paymentData),
+            datasets: [{
+              label: 'Daily Sales',
+              data: Object.values(paymentData),
+              backgroundColor: ['blue','red','yellow'], // Choose a color
+              borderWidth: 1,
+            }]
+          },
+          options: {
+            scales: {
+              y: {
+                beginAtZero: true,
+                title: {
+                  display: true,
+                  text: 'Payment Amount ($)',
+                },
+              },
+            },
+          },
+        });
+
+      })
+      .catch(error => console.error('Error fetching data:', error));
+  </script>
+
+<script>
+    const apiurl = 'http://localhost:3000/getWeeklyPayments';
+    fetch(apiurl)
+  .then(response => response.json())
+  .then(data => {
+    // Prepare data for the chart
+    const paymentData = data.reduce((result, payment) => {
+      const date = new Date(payment.created * 1000);
+      const weekStartDate = new Date(date.getFullYear(), date.getMonth(), date.getDate() - date.getDay() + 1);
+      const weekEndDate = new Date(date.getFullYear(), date.getMonth(), date.getDate() - date.getDay() + 7);
+      document.querySelector(".stats2").style.display='block';
+      document.querySelector(".stats4").style.display='block';
+          
+      const weekLabel = `${weekStartDate.toLocaleDateString('en-US')} - ${weekEndDate.toLocaleDateString('en-US')}`;
+      result[weekLabel] = (result[weekLabel] || 0) + payment.amount / 100;
+      return result;
+    }, {});
+
+    // Create a chart using Chart.js
+    const cty = document.getElementById('weeklyPaymentsChart').getContext('2d');
+    new Chart(cty, {
+      type: 'bar',
+      data: {
+        labels: Object.keys(paymentData),
+        datasets: [{
+          label: 'Weekly Sales',
+          data: Object.values(paymentData),
+          backgroundColor: 'brown', // Choose a color
+          borderWidth: 1,
+        }]
+      },
+      options: {
+        scales: {
+          y: {
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: 'Payment Amount ($)',
+            },
+          },
+        },
+      },
+    });
+    const ctw= document.getElementById('weeklyPaymentsChart-line').getContext('2d');
+        new Chart(ctw, {
+          type: 'line',
+          data: {
+            labels: Object.keys(paymentData),
+            datasets: [{
+              label: 'Daily Sales',
+              data: Object.values(paymentData),
+              backgroundColor: ['blue','red','yellow'], // Choose a color
+              borderWidth: 1,
+            }]
+          },
+          options: {
+            scales: {
+              y: {
+                beginAtZero: true,
+                title: {
+                  display: true,
+                  text: 'Payment Amount ($)',
+                },
+              },
+            },
+          },
+        });
+
+
+  })
+  .catch(error => console.error('Error fetching weekly data:', error));</script>
+       
+<script>
+    const api_url = 'http://localhost:3000/total_revenue';
+  fetch(api_url).then(result=>{
+   return result.json();
+  }).then(final=>{
+document.querySelector(".amount").innerHTML="$"+final;
+document.querySelector(".small").style.display='none';
+  })
+
+</script>
+
 </body>
 </html>

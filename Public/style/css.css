@@ -265,12 +265,13 @@ list-style: none;
 
 .profile-img{
     position:relative;
-    width:80px;
+    width:95px;
     left:8px;
     top:30px;
     overflow: hidden;
     border:solid 1px rgba(0,0,0,0.3);
-    height:80px;
+    height:90px;
+    border:1px solid black;
     border-radius: 50px;
     display:flex;
     justify-content: center;
@@ -284,8 +285,71 @@ list-style: none;
     align-items: center;
     height:100%;
 }
+h1,h5{
+    color:black
+}
+h1{
+    font-size:35px !important;
+}
+
+h1 i{
+    padding:2px;
+      font-size: 3.6rem;
+  color:black;
+    }
+.charts{
+   background-color: white !important;
+    padding:5%;
+    display: flex;
+    justify-content: space-between;
+    text-align: center;
+}
+.products-count,.revenue{
+    background-color: white !important;
+    border-radius:12px !important;
+    padding:2% !important;
+    text-align: center;
+}
+.stats{
+    padding:6%;
+    padding-left: 7% !important;
+    background-color: green !important;
+}
+.custom-gap {
+padding-left: 30px !important;
+margin-Left: 10% !important; /* Adjust the value as needed */
+}
+@media (max-width:860px) {
+.custom-gap {
+ margin-Left: 0 !important; /* Adjust the value as needed */
+} 
+}
+
 
 @media (max-width:420px) {
+
+    .charts{
+        flex-direction: column;
+        }
+        .custom-gap {
+         margin-Left: 0 !important; /* Adjust the value as needed */
+        } 
+        h1 i{
+         padding:2px;
+         font-size: 2.5rem;
+         color:gray;
+        }
+        .stats{
+            background-color: transparent !important;
+        }
+        .charts{
+        background-color: white !important;
+        
+        }
+        .charts div{
+        margin:5% 0 !important;
+        padding: 20px !important;
+        }
     .products{
         flex-direction: column;
     }

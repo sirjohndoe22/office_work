@@ -10,7 +10,7 @@ const admin_auth=require("../helper/admin");
 const Cart=require("../model/cart");
 const router=express.Router();
 const stripe = require("stripe")(process.env.Secret_Key)
-
+const axios=require("axios");
 
 
 
@@ -411,5 +411,67 @@ router.get("/logout",logoutMiddleware);
                                 
         
         ]
+
+//admin routes
+
+//@payments data
+//daily
+
+router.get('/getDailyPayments', async (req, res) => {
+    try {
+      const today = new Date().toISOString().slice(0, 10);
+      const response = await axios.get(`https://api.stripe.com/v1/payment_intents`, {
+        headers: {
+          Authorization: `Bearer ${process.env.Secret_Key}`,
+        },
+       });
+  
+      const dailyPayments = response.data.data;
+       res.json(dailyPayments);
+
+    } catch (error) {
+      console.error('Error fetching daily payments:', error);
+      res.status(500).send('Error fetching daily payments');
+    }
+  });
+
+//weekly payments
+
+  router.get('/getWeeklyPayments', async (req, res) => {
+    try {
+      const response = await axios.get(`https://api.stripe.com/v1/payment_intents`, {
+        headers: {
+          Authorization: `Bearer ${process.env.Secret_Key}`,
+        },
+        // You can add additional parameters here if needed
+      });
+  
+      const paymentData = response.data.data;
+      res.json(paymentData);
+    } catch (error) {
+      console.error('Error fetching payment data:', error);
+      res.status(500).send('Error fetching payment data');
+    }
+  });
+  
+ 
+//overall payment
+
+router.get("/total_revenue",async(req,res) =>{
+    try {
+      const paymentIntents = await stripe.paymentIntents.list();
+      const totalPaymentAmount =await paymentIntents.data.reduce((sum, payment) => {
+       return sum + payment.amount;
+      }, 0);
+  
+      console.log('Total payment amount:', totalPaymentAmount);
+      res.json(totalPaymentAmount)
+    } catch (error) {
+      console.error('Error retrieving payment data:', error);
+    }
+  })
+
+
+
 
 module.exports=router;
