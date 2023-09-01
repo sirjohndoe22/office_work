@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css" integrity="sha512-SzlrxWUlpfuzQ+pcUCosxcglQRNAq/DZjVsC0lE40xsADsfeQoEypE+enwcOiGjk/bSuGGKHEyjSoQ1zVisanQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="/style/css.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div class="navbar-fixed" style="z-index:1020 !important;">
+        <nav class="black darken-4">
+          <div class="nav-wrapper container">
+              <a href="/dashboard" class="brand-logo center mylogo">Admin Panel</a>
+              <a href="#" data-target="mobile-demo" class="sidenav-trigger
+              show-on-large"><i class="fas fa-bars"></i></a>
+              
+              <ul class="slide-out sidenav " id="mobile-demo" > 
+                  <li class="myli"><div class="my-view" style="background-color: black !important ;border-bottom:2px solid BLACK  !important;" >
+                      <div class="profile-img">
+                      <img src="/assets/atak.jpg">
+                     </div>
+                      <p style="color: white;font-weight: 600;letter-spacing:1px;font-size:22px;text-align:center;"><%=user.username%></p>
+                           
+                              
+                        
+                    </div></li>
+                    <li><a href="/dashboard" class="blue-text "><i class="fa fa-user blue-text"></i>Dashboard</a></li>
+                    <li><a href="/dashboard/add_product" class="blue-text active"><i class="fas fa-box blue-text"></i>Add Product</a></li>
+                    <li><a href="/dashboard/keys" class="blue-text"><i class="fas fa-cog blue-text"></i>Settings</a></li>
+                    <li><a href="/admin_logout" class="blue-text"><i class="fa fa-sign-out blue-text" aria-hidden="true"></i>Logout</a></li>
+              </ul>
+          </div>
+      </nav>
+      </div>
+
+      
+<div class="overlay">  <div class="preloader-wrapper small active">
+    <div class="spinner-layer spinner-red-only">
+      <div class="circle-clipper left">
+        <div class="circle"></div>
+      </div><div class="gap-patch">
+        <div class="circle"></div>
+      </div><div class="circle-clipper right">
+        <div class="circle"></div>
+      </div>
+    </div>
+  </div></div>
+<div class="container">
+
+    <h3 style="color:black !important;">Add a Product</h3>
+   
+    <form id="product-form" enctype="multipart/form-data">
+      <div class="input-field" style="display:inline-block !important;">
+        <input type="text" id="title" name="title" required>
+        <label for="title">Title</label>
+      </div>
+      <div class="file-field input-field">
+        <div class="btn">
+          <span>Image</span>
+          <input type="file" id="image" name="image" accept="image/*" required onchange="previewImage()">
+        </div>
+        <div class="file-path-wrapper">
+          <input class="file-path validate" type="text">
+        </div>
+      </div>
+      <div class="image-preview">
+        <img id="image-preview" src="#" alt="Image Preview" style="max-width: 100%; display: none;">
+      </div>
+      <div class="input-field">
+        <textarea id="description" name="description" class="materialize-textarea" required></textarea>
+        <label for="description">Description</label>
+      </div>
+      <div class="input-field" style="display:inline-block !important;">
+        <input type="number" id="price" name="price" step="0.01" min="0" required>
+        <label for="price">Price</label>
+      </div>
+      <div class="input-field" style="display:inline-block !important;">
+        <input type="number" id="quantity" name="quantity" min="0" required>
+        <label for="quantity">Quantity</label>
+      </div>
+      <button class="btn waves-effect waves-light" type="submit">Submit</button>
+    </form>
+
+
+
+
+    
+
+
+
+   
+  </div>
+
+
+
+
+
+
+<!--Scripts-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
+<script> M.AutoInit();
+  
+  document.addEventListener('DOMContentLoaded', function() {
+    var elems = document.querySelectorAll('.fixed-action-btn');
+    var instances = M.FloatingActionButton.init(elems, options);
+  });
+  
+//handling loader
+document.querySelector(".overlay").classList.add("activate-loader");
+
+
+  function previewImage() {
+      const imageInput = document.getElementById('image');
+      const imagePreview = document.getElementById('image-preview');
+      
+      if (imageInput.files && imageInput.files[0]) {
+        const reader = new FileReader();
+        
+        reader.onload = function (e) {
+          imagePreview.style.display = 'block';
+          imagePreview.src = e.target.result;
+        };
+        
+        reader.readAsDataURL(imageInput.files[0]);
+      }
+    }
+    
+    // Handle form submission
+    const productForm = document.getElementById('product-form');
+    
+    productForm.addEventListener('submit', function(event) {
+      event.preventDefault();
+      
+      // You can access form data here and send it to your backend
+      const formData = new FormData(productForm);
+      
+
+      document.querySelector(".overlay").classList.remove("activate-loader");
+      fetch('/dashboard/add_product', {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => {
+        if (response.ok) {
+          // Handle success
+
+          productForm.reset(); // Reset the form
+
+        // You can also clear the image preview if needed
+        const imagePreview = document.getElementById('image-preview');
+        imagePreview.style.display = 'none';
+        imagePreview.src = '';
+        document.querySelector(".overlay").classList.add("activate-loader");
+        M.toast({html: 'Product Added Successfully'})
+        } else {
+          // Handle errors
+          console.error('Error adding product.');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+    });
+
+
+
+
+</script>
+
+    </body>
+</html>

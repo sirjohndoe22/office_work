@@ -11,8 +11,9 @@ const Cart=require("../model/cart");
 const router=express.Router();
 const stripe = require("stripe")(process.env.Secret_Key)
 const axios=require("axios");
-
-
+const multer=require('multer');
+const cloudinary=require("cloudinary").v2;
+const Product=require('../model/product');
 
 router.get("/",(req,res)=>{
     
@@ -340,6 +341,15 @@ const logoutMiddleware = (req, res, next) => {
     // Redirect user to login page after logging out
   }
 
+  //admin-logout
+  const logoutAdmin = (req, res, next) => {
+    req.logout(()=>{
+        req.flash("success_msg","Successfully Logged Out")
+        res.redirect('/admin_login');
+    });
+    // Redirect user to login page after logging out
+  }
+
 
 router.get("/logout",logoutMiddleware);
 
@@ -417,6 +427,8 @@ router.get("/logout",logoutMiddleware);
 //@payments data
 //daily
 
+router.get("/admin_logout",logoutAdmin);
+
 router.get('/getDailyPayments', async (req, res) => {
     try {
       const today = new Date().toISOString().slice(0, 10);
@@ -470,6 +482,75 @@ router.get("/total_revenue",async(req,res) =>{
       console.error('Error retrieving payment data:', error);
     }
   })
+
+
+//add product
+
+
+router.get("/dashboard/add_product",async(req,res)=>{
+    try{
+        const id=req.user;
+        await Admin.findById(id).then(admin=>{
+            if(admin){
+                res.render("add_product",{
+                    user:admin
+                })
+            }
+            else{
+                res.status=400;
+                res.redirect("/admin_login");
+                
+            }
+        }).catch(err=>{
+            console.error(err);
+        })
+    }catch(err){
+        console.log(err);
+    }
+})
+
+//multer storage
+const storage = multer.diskStorage({
+    filename: function (req, file, cb) {
+      cb(null, Date.now() + '_' + file.originalname);
+    }
+  });
+  
+  // Configure multer upload
+  const upload = multer({ storage: storage });
+ 
+
+  //configuring cloudinary
+  cloudinary.config({
+    cloud_name: 'di04izpau',
+    api_key: '113469129188635',
+    api_secret: '8_L3EaRwAmm7YO5bN6JbiZs01Tc'
+  });
+
+
+
+router.post("/dashboard/add_product", upload.single('image'),async(req,res)=>{
+      
+       try{
+        const result = await cloudinary.uploader.upload(req.file.path);
+        const {title,description,price,quantity}  =req.body; 
+        await Product.insertMany({title:title,img:result.secure_url,desc:description
+        ,price:price,quantity:quantity}).then(uploaded=>{
+            if(uploaded){
+                res.status=200;
+                res.end();
+            }
+        }).catch(err=>{
+            console.log(err);
+        })
+        
+       }catch(err){
+        console.log(err);
+       }
+     
+
+
+})
 
 
 

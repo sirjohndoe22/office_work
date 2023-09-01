@@ -14,5 +14,5 @@ const productSchema = new mongoose.Schema({
 
   },{timestamps:true})
 
-const Product=mongoose.model('darson_product',userSchema);
-module.exports =User;
+const Product=mongoose.model('darson_product',productSchema);
+module.exports =Product;

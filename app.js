@@ -34,7 +34,7 @@ app.use(sessions({
     resave:false,
     saveUninitialized:false
 }));
-
+app.use('/Public/assets', express.static('Public'));
 app.use(passport.initialize());
 app.use(passport.session());
 

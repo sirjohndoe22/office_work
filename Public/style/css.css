@@ -12,6 +12,7 @@ body{
     background-color: cyan !important;
     font-family:"Roboto sans-serif"  !important;
     color:white !important;
+    user-select: none;
 }
 
 /*landing page*/
@@ -299,11 +300,16 @@ h1 i{
     }
 .charts{
    background-color: white !important;
-    padding:5%;
-    display: flex;
-    justify-content: space-between;
-    text-align: center;
+    position: inherit !important;
+    width:100% !important;
+    height:100% !important;
+     display: flex !important;
+    justify-content: space-between !important;
+    text-align: center !important;
 }
+
+
+
 .products-count,.revenue{
     background-color: white !important;
     border-radius:12px !important;
@@ -319,6 +325,40 @@ h1 i{
 padding-left: 30px !important;
 margin-Left: 10% !important; /* Adjust the value as needed */
 }
+
+
+/*add product page css */
+
+
+
+
+.overlay{
+    position: absolute !important;
+    width:100% !important;
+    height: 100% !important;
+    z-index: 120 !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    background-color: rgba(0,0,0,0.16);
+    
+}
+.activate-loader{
+    display: none !important;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 @media (max-width:860px) {
 .custom-gap {
  margin-Left: 0 !important; /* Adjust the value as needed */
@@ -327,7 +367,9 @@ margin-Left: 10% !important; /* Adjust the value as needed */
 
 
 @media (max-width:420px) {
-
+     .loader1,.loader2{
+        display:none;
+     }
     .charts{
         flex-direction: column;
         }

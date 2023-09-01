@@ -9,7 +9,7 @@ module.exports=(req,res,next)=>{
     }
     else{
         req.flash("error_msg","Please Logged in");
-        res.redirect("/login")
+        res.redirect("/admin_login")
 
     }
 }
