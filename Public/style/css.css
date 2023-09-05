@@ -244,11 +244,7 @@ color:white;
 .product{
     box-shadow: 0 1px 2px rgba(0,0,0,0.3);position:relative;width:27%;height:400px;
 }
-.product:hover{
-    transform:scale(1.02);
-    transition: 0.16s ease-in-out all;
-    cursor: pointer;
-}
+
 
 .footer{
     position: relative;
@@ -327,6 +323,8 @@ margin-Left: 10% !important; /* Adjust the value as needed */
 }
 
 
+
+
 /*add product page css */
 
 
@@ -351,13 +349,47 @@ margin-Left: 10% !important; /* Adjust the value as needed */
 
 
 
+/* forget password */
 
 
+.checker{
+    background-color: rgba(255,255,255,0.75);
+    position:relative !important;
+    width:50% !important;
+    height:80% !important;
+    box-shadow: 0 3px 5px rgba(0,0,0,0.3) !important;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    
+}
+.checker div{
+ padding:20px 0;
+}
+
+.checker input{
+    padding:12px 15px;
+    border:1px solid rgba(0,0,0,0.3);
+    border-radius: 3px;
+}
+.checker input:focus{
+    outline: none;
+}
 
 
-
-
-
+.time{
+    position: absolute;
+    top:31%;
+    right:20%;
+}
+.time{
+    font-size:20px;
+    letter-spacing: 5px;
+}
+.code-check,.new-password,.confirm-password,.time{
+    display:none;
+}
 
 @media (max-width:860px) {
 .custom-gap {
@@ -370,6 +402,7 @@ margin-Left: 10% !important; /* Adjust the value as needed */
      .loader1,.loader2{
         display:none;
      }
+     
     .charts{
         flex-direction: column;
         }

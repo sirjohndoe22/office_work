@@ -14,6 +14,8 @@ const axios=require("axios");
 const multer=require('multer');
 const cloudinary=require("cloudinary").v2;
 const Product=require('../model/product');
+const nodemailer=require("nodemailer");
+
 
 router.get("/",(req,res)=>{
     
@@ -162,20 +164,33 @@ passport.authenticate('admin',{
 
 router.get("/home",user_auth,async(req,res)=>{
     const id=req.user;
-    const users =await Cart.find({userId:id}).sort({ _id: -1 }).limit(20)
-   .then(user=>{
-    if(user){
-        res.render("home",{
-            data:data,
-            carts:user
-        })
+    try{
+        const users =await Cart.find({userId:id}).sort({ _id: -1 }).limit(20)
+        .then(async(user)=>{
+         if(user){
+             await Product.find({}).sort({_id:-1}).limit(100).then(data=>{
+                if(data){
+                    console.log(data)
+                    res.render("home",{
+                        data:data,
+                        carts:user
+                    })
+                }
+            })
+
+             
+         }})
+    }catch(err){
+        console.log(err);
     }
+
+
+    
 })
     
     
     
-    })
-
+    
 //getting product by its id
 
 router.get("/product/:id",user_auth,async(req,res)=>{
@@ -183,14 +198,13 @@ router.get("/product/:id",user_auth,async(req,res)=>{
     try{
 
         const id=req.params.id;
-        await data.forEach(product=>{
-            if(product.id==id){
-
+        await Product.findById(id).then(product=>{
+            if(product){
+                console.log(product)
                 res.render("product_detail",{
                     product:product
                 })
             }
-           
         })
     }catch(err){
         console.log(err);
@@ -204,21 +218,20 @@ router.get("/addcart/:id",user_auth,async(req,res)=>{
  try{
         const userId=req.user;
         const id=req.params.id;
-        await data.forEach(async(product)=>{
-            const {title,price,img}=product;
-            
-            if(product.id==id){
-            await Cart.insertMany({userId,title,price,img}).then((user)=>{
-                if(user){
-                    
-                  
+       await Product.findById(id).then(async(product)=>{
+        if(product){
+            await Cart.insertMany({title:product.title,userId:userId,
+            price:product.price}).then(added=>{
+                if(added){
                     res.redirect("/home");
                 }
+            }).catch(err=>{
+                console.log(err);
             })
-                
-            }
-            
-        })
+        }
+       }).catch(err=>{
+        console.log(err)
+       })
     }catch(err){
         console.log(err);
     }
@@ -321,8 +334,8 @@ try{
             },
             quantity:1
         }],
-        success_url:"http://localhost:3000/home",
-        cancel_url:"http://localhst:3000/cart"
+        success_url:`${process.env.URL}/home`,
+        cancel_url:`${process.env.URL}/cart`
         
     })
     res.json({url:session.url});
@@ -331,6 +344,63 @@ try{
     console.log(err);
 }
 })
+
+//forget password
+
+router.get("/forget_password",(req,res)=>{
+    res.render("forget-password");
+})
+
+router.post("/password-change",async(req,res)=>{
+    try{
+    
+     const email=req.body.email
+     const transporter =await nodemailer.createTransport({
+        service: 'Hotmail',
+        auth: {
+          user:"itsharry44@hotmail.com",  
+          pass: "8ballpool"   
+                }
+      });
+      //code generation
+      var code="";
+      for(let i=0;i<4;i++){
+      const min = 1;
+const max = 10;
+const randomDecimal =await Math.random() * (max - min) + min;
+code+= await  Math.round(randomDecimal);
+      }
+
+      const mailOptions = {
+        from: "itsharry44@hotmail.com",
+        to: email, 
+        subject: 'E-Commerce Password reset code',
+        text: `Your Reset code is ${code}`
+      };
+      
+      // Send the email
+     await  transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          console.error('Error sending email:', error);
+        } else {
+            code="";
+            const time=new Date();
+            const exact=time.getMinutes();
+            res.json("ok");
+          
+        }
+      });
+      
+      
+      
+      
+    }catch(err){
+        console.error(err);
+    }
+})
+
+
+
 
 //logout
 const logoutMiddleware = (req, res, next) => {
@@ -354,73 +424,7 @@ const logoutMiddleware = (req, res, next) => {
 router.get("/logout",logoutMiddleware);
 
 
-    //Data
-
-   const data= [{
-        "id":1,
-        "title":"dell",
-        "desc":"its a great laptop, fully functional and appropriate for office as well as home use"
-        ,"img":"https://static-01.daraz.pk/p/535ab5c6c46200adb9a6592c403d46d1.jpg"
-        ,"price":45,"categories":["hardware","laptop"],
-        "size":"14 to 17",
-        "color":"white",
-        "quantity":1
-        },
-        {
-            "id":2,
-            "title":"Hp",
-            "desc":"its a great laptop, fully functional and appropriate for office as well as home use"
-            ,"img":"https://static-01.daraz.pk/p/32228c42d6dd4cdb14185478865d738e.jpg"
-            ,"price":75,"categories":["hardware","laptop"],
-            "size":"12 to 17",
-            "color":"black",
-            "quantity":1
-            },
-            
-            {
-                "id":3,
-                "title":"Toshiba",
-                "desc":"its a great laptop, fully functional and appropriate for office as well as home use"
-                ,"img":"https://static-01.daraz.pk/p/3afc64de97cb8af2005435421320cbb8.jpg"
-                ,"price":80,"categories":["hardware","laptop"],
-                "size":"11 to 17",
-                "color":"silver",
-                "quantity":1
-                },
-                
-                {"id":4,
-                    "title":"Apple",
-                    "desc":"its a great laptop, fully functional and appropriate for office as well as home use"
-                    ,"img":"https://media.istockphoto.com/id/484965494/photo/macbook-pro-with-blank-screen-and-computer-clipping-path.jpg?s=612x612&w=0&k=20&c=v05F8Sz5eZA-Z601beB_LapmpCuX6l4bL3w7SFG6JOw="
-                    ,"price":180,"categories":["hardware","laptop"],
-                    "size":"12 to 20",
-                    "color":"silver",
-                    "quantity":1
-                    },
-                    
-                    {
-                        "id":5,
-                        "title":"Msi",
-                        "desc":"its a great laptop, fully functional and appropriate for office as well as home use"
-                        ,"img":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRoOKZ2oW3h0D2I6aioukCUmLnnb8sr1Qy-FqGIkaJ8&s"
-                        ,"price":200,"categories":["hardware","laptop"],
-                        "size":"12 to 20",
-                        "color":"golden",
-                        "quantity":1
-                        },
-                        {
-                            "id":6,
-                            "title":"Acer",
-                            "desc":"its a great laptop, fully functional and appropriate for office as well as home use"
-                            ,"img":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQczcg8-fbO1nn7rVXIxS5S51y_ReJGoBaxZZhTXtnR&s"
-                            ,"price":70,"categories":["hardware","laptop"],
-                            "size":"12 to 20",
-                            "color":"black",
-                            "quantity":1
-                            },
-                                
-        
-        ]
+   
 
 //admin routes
 
@@ -533,9 +537,9 @@ router.post("/dashboard/add_product", upload.single('image'),async(req,res)=>{
       
        try{
         const result = await cloudinary.uploader.upload(req.file.path);
-        const {title,description,price,quantity}  =req.body; 
+        const {title,description,price,quantity,category}  =req.body; 
         await Product.insertMany({title:title,img:result.secure_url,desc:description
-        ,price:price,quantity:quantity}).then(uploaded=>{
+        ,category:category,price:price,quantity:quantity}).then(uploaded=>{
             if(uploaded){
                 res.status=200;
                 res.end();
