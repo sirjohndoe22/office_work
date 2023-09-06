@@ -355,7 +355,7 @@ margin-Left: 10% !important; /* Adjust the value as needed */
 .checker{
     background-color: rgba(255,255,255,0.75);
     position:relative !important;
-    width:50% !important;
+    width:60% !important;
     height:80% !important;
     box-shadow: 0 3px 5px rgba(0,0,0,0.3) !important;
     display: flex;
@@ -379,18 +379,23 @@ margin-Left: 10% !important; /* Adjust the value as needed */
 
 
 .time{
-    position: absolute;
-    top:31%;
-    right:20%;
+    position: absolute !important;
+    top:31% !important;
+    right:30% !important;
+    z-index:30 !important;
+    
 }
 .time{
-    font-size:20px;
-    letter-spacing: 5px;
+    font-size:20px !important;
+    letter-spacing: 5px !important;
 }
-.code-check,.new-password,.confirm-password,.time{
-    display:none;
+.code-check,.new-password,.confirm-password{
+    display:none; 
 }
 
+.code-btn{
+    display:none !important;
+}
 @media (max-width:860px) {
 .custom-gap {
  margin-Left: 0 !important; /* Adjust the value as needed */

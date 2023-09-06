@@ -15,7 +15,10 @@ const multer=require('multer');
 const cloudinary=require("cloudinary").v2;
 const Product=require('../model/product');
 const nodemailer=require("nodemailer");
+const crypto=require("crypto");
 
+//globals
+var token;
 
 router.get("/",(req,res)=>{
     
@@ -358,35 +361,27 @@ router.post("/password-change",async(req,res)=>{
      const transporter =await nodemailer.createTransport({
         service: 'Hotmail',
         auth: {
-          user:"itsharry44@hotmail.com",  
-          pass: "8ballpool"   
+          user:"muhammad.haseeb@toobitech.com",  
+          pass:"@T00bitech@"
                 }
       });
-      //code generation
-      var code="";
-      for(let i=0;i<4;i++){
-      const min = 1;
-const max = 10;
-const randomDecimal =await Math.random() * (max - min) + min;
-code+= await  Math.round(randomDecimal);
-      }
-
+      //token generation
+      var bytes=crypto.randomBytes(20)
+      token=bytes.toString('hex')
+      console.log(token);
       const mailOptions = {
-        from: "itsharry44@hotmail.com",
+        from: "muhammad.haseeb@toobitech.com",
         to: email, 
-        subject: 'E-Commerce Password reset code',
-        text: `Your Reset code is ${code}`
+        subject: 'Haseeb <Password Reset Link>',
+        text: `http://localhost:3000/reset-password/${token}`
       };
       
       // Send the email
      await  transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
-          console.error('Error sending email:', error);
+          console.log(error);
         } else {
-            code="";
-            const time=new Date();
-            const exact=time.getMinutes();
-            res.json("ok");
+      res.json("ok");
           
         }
       });
@@ -400,7 +395,25 @@ code+= await  Math.round(randomDecimal);
 })
 
 
+//authentication of link
 
+router.get("/reset-password/:id",async(req,res)=>{
+    try{
+      if(req.params.id==token){
+        token='';
+        res.redirect("/password-change-template");
+      }
+      else{
+        res.json("not allowed")
+      }
+    }catch(err){
+        console.log(err);
+    }
+})
+
+router.get("/password-change-template",(req,res)=>{
+    res.render("password-change-template.ejs");
+})
 
 //logout
 const logoutMiddleware = (req, res, next) => {
