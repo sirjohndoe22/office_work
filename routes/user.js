@@ -5,6 +5,7 @@ require("../Config/strategy")(passport);
 require("../Config/admin_strategy")(passport);
 const mongoose=require("mongoose");
 const Admin=require("../model/admin");
+const Token=require("../model/token");
 const user_auth=require("../helper/user");
 const admin_auth=require("../helper/admin");
 const Cart=require("../model/cart");
@@ -21,8 +22,8 @@ const crypto=require("crypto");
 var token;
 
 router.get("/",(req,res)=>{
+    res.render("login.ejs")
     
-    res.render("login")
  });
  router.get("/login",(req,res)=>{
      res.render("login");
@@ -358,61 +359,124 @@ router.post("/password-change",async(req,res)=>{
     try{
     
      const email=req.body.email
-     const transporter =await nodemailer.createTransport({
-        service: 'Hotmail',
-        auth: {
-          user:"muhammad.haseeb@toobitech.com",  
-          pass:"@T00bitech@"
-                }
-      });
-      //token generation
-      var bytes=crypto.randomBytes(20)
-      token=bytes.toString('hex')
-      console.log(token);
-      const mailOptions = {
-        from: "muhammad.haseeb@toobitech.com",
-        to: email, 
-        subject: 'Haseeb <Password Reset Link>',
-        text: `http://localhost:3000/reset-password/${token}`
-      };
-      
-      // Send the email
-     await  transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-          console.log(error);
-        } else {
-      res.json("ok");
-          
+     
+     await User.findOne({email:email}).then(async(user)=>{
+        if(!user){
+        
+          res.json("Email not found");
+            }else{
+                
+                const transporter =await nodemailer.createTransport({
+                    service: 'Hotmail',
+                    auth: {
+                      user:"muhammad.haseeb@toobitech.com",  
+                      pass:process.env.Email_Password
+                            }
+                  });
+                  //token generation
+                  var bytes=crypto.randomBytes(32);
+                  const token=bytes.toString('hex');
+                  
+            
+                const mailOptions = {
+                    from: "muhammad.haseeb@toobitech.com",
+                    to: email, 
+                    subject: 'Haseeb <Password Reset Link>',
+                    text: `${process.env.URL}/reset-password/${token}`
+                  };
+            
+                   // Send the email
+                 await  transporter.sendMail(mailOptions, async(error, info) => {
+                    if (error) {
+                      console.log(error);
+                    } else {
+                        
+                    await Token.insertMany({token:token}).then(id=>{
+                      res.json("Link sent to your email");
+                    }).catch(err=>{
+                        console.log(err);
+                    })
+                      
+                    }
+                  })
+            }
+
+
+        }).catch(err=>{
+            console.log(err);
+        })
+        
         }
-      });
-      
-      
-      
-      
-    }catch(err){
-        console.error(err);
-    }
+catch(err){
+    console.log(err);
+}
+    
+    
 })
+      
+      
+      
+      
+      
+      
+
 
 
 //authentication of link
 
-router.get("/reset-password/:id",async(req,res)=>{
+router.get("/reset-password/:token",async(req,res)=>{
     try{
-      if(req.params.id==token){
-        token='';
-        res.redirect("/password-change-template");
-      }
-      else{
-        res.json("not allowed")
-      }
+    await Token.findOne({token:req.params.token}).then(async(token)=>{
+        if(token){
+           var current_time=new Date();
+           var difference=current_time-token.time;
+           expiration_time=2*60*1000;
+
+           if(difference<expiration_time){
+            res.render("password-change-template.ejs");
+           }
+           else{
+            res.send('Link is Expired');
+           }
+        }
+        if(!token){
+            res.send("Not Allowed");
+            res.status=404;
+        }
+    }).catch(err=>{
+        console.log(err);
+    })
+      
+
+
+
     }catch(err){
         console.log(err);
     }
 })
 
-router.get("/password-change-template",(req,res)=>{
-    res.render("password-change-template.ejs");
+router.post("/update-password", async (req, res) => {
+    try {
+        const password = req.body.password;
+        const email = req.body.email;
+
+        const user = await User.find({ email: email });
+
+        if (user.length > 0) {
+            await User.updateOne({ email: email }, { $set: { password: password } }).then(done => {
+                if (!done) {
+                    res.json("some issue");
+                } else {
+                    res.json("successfully reset");
+                }
+            })
+        } else {
+            res.json("user not found");
+        }
+
+    } catch (err) {
+        console.log(err);
+    }
 })
 
 //logout

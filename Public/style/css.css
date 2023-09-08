@@ -396,6 +396,42 @@ margin-Left: 10% !important; /* Adjust the value as needed */
 .code-btn{
     display:none !important;
 }
+
+.overlay1{
+    position:absolute;
+    left:0;
+    background-color: rgba(0,0,0,0.3);
+    height:0;
+    width:100%;
+    height:100%;
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    z-index:65;
+    text-align: center;
+
+}
+.loading{
+    position: relative;
+    width: 50px;
+    height:50px;
+    
+    background-color: rgba(0, 128, 0,0.5);
+    border-radius: 50%;
+    animation: 1s infinite loader ease-in-out alternate ;
+}
+.overlay1{
+    display: none;
+}
+@keyframes loader {
+    
+    
+    100%{
+        transform: rotatey(360deg);
+    }
+
+}
+
 @media (max-width:860px) {
 .custom-gap {
  margin-Left: 0 !important; /* Adjust the value as needed */
