@@ -355,6 +355,17 @@ router.get("/forget_password",(req,res)=>{
     res.render("forget-password");
 })
 
+//transporter
+const transporter = nodemailer.createTransport({
+    service: 'Hotmail',
+    auth: {
+      user: "muhammad.haseeb@toobitech.com",
+      pass: process.env.Email_Password
+    }
+  });
+
+  
+
 router.post("/password-change",async(req,res)=>{
     try{
     
@@ -365,20 +376,7 @@ router.post("/password-change",async(req,res)=>{
         
           res.json("Email not found");
             }else{
-                
-                const transporter =await nodemailer.createTransport({
-                    service: 'Hotmail',
-                    auth: {
-                      user:"muhammad.haseeb@toobitech.com",  
-                      pass:process.env.Email_Password
-                            }
-                  });
-                  //token generation
-                  var bytes=crypto.randomBytes(32);
-                  const token=bytes.toString('hex');
-                  
-            
-                const mailOptions = {
+                    const mailOptions = {
                     from: "muhammad.haseeb@toobitech.com",
                     to: email, 
                     subject: 'Haseeb <Password Reset Link>',
@@ -390,8 +388,12 @@ router.post("/password-change",async(req,res)=>{
                     if (error) {
                       console.log(error);
                     } else {
-                        
-                    await Token.insertMany({token:token}).then(id=>{
+                        //token generation
+                      var bytes=crypto.randomBytes(32);
+                     const token=bytes.toString('hex');
+                    
+                     await Token.insertMany({token:token}).then(id=>{
+                       
                       res.json("Link sent to your email");
                     }).catch(err=>{
                         console.log(err);
@@ -426,14 +428,18 @@ catch(err){
 
 router.get("/reset-password/:token",async(req,res)=>{
     try{
+        console.log(req.params.token)
     await Token.findOne({token:req.params.token}).then(async(token)=>{
         if(token){
-           var current_time=new Date();
-           var difference=current_time-token.time;
-           expiration_time=2*60*1000;
-
-           if(difference<expiration_time){
+            
+          var current_time=new Date();
+           var difference=current_time-token.createdAt;
+           console.log(difference);
+           var expiration=2*60*1000;
+           if(difference<expiration){
             res.render("password-change-template.ejs");
+            
+            
            }
            else{
             res.send('Link is Expired');
@@ -634,6 +640,54 @@ router.post("/dashboard/add_product", upload.single('image'),async(req,res)=>{
 })
 
 
+//manage products @super admin
 
+
+router.get("/dashboard/manage_products",user_auth,async(req,res)=>{
+    try{
+        const id=req.user;
+        
+      await Admin.findById(id).then(async(admin)=>{
+        if(admin){
+            await Product.find({}).sort().limit(300).then(products=>{
+                if(products){
+                    res.render("manage_products.ejs",{
+                        user:admin,
+                        products:products
+                    });
+                }
+            })
+        }
+        else{
+            res.json("400");
+            res.status=400;
+        }
+      })
+    }
+    catch(err){
+        console.log(err);
+    }
+})
+
+//remove product @super admin
+
+router.get("/remove-product/:id",async(req,res)=>{
+  try{
+    const id=req.params.id;
+     await Product.deleteOne({_id:id}).then(done=>{
+        if(done)
+        {
+            res.json("Product Removed Successfully");
+        }
+        else{
+            res.json("some issue");
+        }
+     })
+
+  }catch(err){
+    console.log(err);
+  }
+ 
+})
 
 module.exports=router;

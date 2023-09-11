@@ -28,16 +28,19 @@
                     </div></li>
                     <li><a href="/dashboard" class="blue-text active"><i class="fa fa-user blue-text"></i>Dashboard</a></li>
                     <li><a href="/dashboard/add_product" class="blue-text"><i class="fas fa-box blue-text"></i>Add Product</a></li>
-                    <li><a href="/dashboard/keys" class="blue-text"><i class="fas fa-cog blue-text"></i>Settings</a></li>
+                    <li><a href="/dashboard/manage_products" class="blue-text"><i class="fas fa-wrench blue-text"></i>Manage Products</a></li>
+                    <li><a href="/admin_logout/admins" class="blue-text"><i class="fas fa-users-cog blue-text" aria-hidden="true"></i>Admins</a></li>
+                    <li><a href="/admin_logout/settings" class="blue-text"><i class="fa fa-cog blue-text" aria-hidden="true"></i>Settings</a></li>
                     <li><a href="/admin_logout" class="blue-text"><i class="fa fa-sign-out blue-text" aria-hidden="true"></i>Logout</a></li>
-              </ul>
+                    
+                  </ul>
           </div>
       </nav>
       </div>
       
 
 
-<div class="stats  row">
+<div class="stats row">
 
 <div class="products-count center-align col l5 text-warning col m6 col s12 card">
 <h1>Total Products <i class="fas fa-gift"></i></h1>
@@ -222,7 +225,7 @@
   </script>
 
 <script>
-    const apiurl = 'https://localhost:3000/getWeeklyPayments';
+    const apiurl = 'http://localhost:3000/getWeeklyPayments';
     fetch(apiurl)
   .then(response => response.json())
   .then(data => {
@@ -270,7 +273,7 @@
           data: {
             labels: Object.keys(paymentData),
             datasets: [{
-              label: 'Daily Sales',
+              label: 'Weekly Sales',
               data: Object.values(paymentData),
               backgroundColor: ['blue','red','yellow'], // Choose a color
               borderWidth: 1,

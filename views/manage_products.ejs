@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css" integrity="sha512-SzlrxWUlpfuzQ+pcUCosxcglQRNAq/DZjVsC0lE40xsADsfeQoEypE+enwcOiGjk/bSuGGKHEyjSoQ1zVisanQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="/style/css.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div class="navbar-fixed" style="z-index:1020 !important;">
+        <nav class="black darken-4">
+          <div class="nav-wrapper container">
+              <a href="/dashboard" class="brand-logo center mylogo">Admin Panel</a>
+              <a href="#" data-target="mobile-demo" class="sidenav-trigger
+              show-on-large"><i class="fas fa-bars"></i></a>
+              
+              <ul class="slide-out sidenav " id="mobile-demo" > 
+                  <li class="myli"><div class="my-view" style="background-color: black !important ;border-bottom:2px solid BLACK  !important;" >
+                      <div class="profile-img">
+                      <img src="/assets/atak.jpg">
+                     </div>
+                      <p style="color: white !important;font-weight: 600;letter-spacing:1px;font-size:22px;text-align:center;"><%=user.username%></p>
+                           
+                              
+                        
+                    </div></li>
+                    <li><a href="/dashboard" class="blue-text "><i class="fa fa-user blue-text"></i>Dashboard</a></li>
+                    <li><a href="/dashboard/add_product" class="blue-text"><i class="fas fa-box blue-text"></i>Add Product</a></li>
+                    <li><a href="/dashboard/manage_products" class="blue-text active"><i class="fas fa-wrench blue-text"></i>Manage Products</a></li>
+                    <li><a href="/admin_logout/admins" class="blue-text"><i class="fas fa-users-cog blue-text" aria-hidden="true"></i>Admins</a></li>
+                    <li><a href="/admin_logout/settings" class="blue-text"><i class="fa fa-cog blue-text" aria-hidden="true"></i>Settings</a></li>
+                    <li><a href="/admin_logout" class="blue-text"><i class="fa fa-sign-out blue-text" aria-hidden="true"></i>Logout</a></li>
+                    
+                  </ul>
+          </div>
+      </nav>
+      </div>
+
+
+<div class="container">
+
+    <table  class="white padding-2" style="color :black !important;">
+        <thead>
+          <tr>
+              <th>Title</th>
+              <th>Price</th>
+              <th>Quantity</th>
+              <th></th>
+          </tr>
+        </thead>
+
+        <tbody>
+         <%if(products.length>0){%>
+            
+
+          <%products.forEach((product)=>{%>
+           <tr>
+            <td><%=product.title%></td>
+             <td><%=product.price%></td>
+             <td><%=product.quantity%></td>
+             <td><button class='btn red product-remove' data-id="<%=product._id%>">Remove</button></td>
+             <td><button class='btn green product-view' data-id="<%=product._id%>">View</button></td>
+             </tr>
+             <%})%>
+             <%}else{%>
+                <p>Empty</p>
+                <%}%>
+        </tbody>
+      </table>
+
+
+
+
+
+</div>
+      
+
+      <!--Scripts-->
+
+      <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
+      <script> M.AutoInit();
+       
+        document.addEventListener('DOMContentLoaded', function() {
+          var elems = document.querySelectorAll('.fixed-action-btn');
+          var instances = M.FloatingActionButton.init(elems, options);
+});
+
+//remove product 
+
+
+document.querySelector(".product-remove").addEventListener("click",(e)=>{
+    const remove_id=document.querySelector('.product-remove');
+const remover=remove_id.getAttribute("data-id");
+
+const url="/remove-product/"+remover
+    e.preventDefault();
+fetch(url,{
+    method:'GET',
+    headers:{
+        "Content-Type":'application/json'
+    }
+
+}).then(response=>{
+    if(response.ok){
+        return response.json();
+    }
+}).then(final=>{
+    if(final){
+        window.alert("all good")
+    }
+})
+
+
+
+
+})
+</script>     
+</body>
+</html>       
