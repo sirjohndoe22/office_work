@@ -671,7 +671,7 @@ router.get("/dashboard/manage_products",user_auth,async(req,res)=>{
 
 //remove product @super admin
 
-router.get("/remove-product/:id",async(req,res)=>{
+router.get("/remove-product/:id",user_auth,async(req,res)=>{
   try{
     const id=req.params.id;
      await Product.deleteOne({_id:id}).then(done=>{
@@ -689,5 +689,82 @@ router.get("/remove-product/:id",async(req,res)=>{
   }
  
 })
+
+
+//view product @super admin
+
+router.get("/dashboard/product/:id",user_auth,async(req,res)=>{
+
+    try{
+
+        const id=req.params.id;
+        const user_id=req.user;
+        await Admin.findById(user_id).then(async(user)=>{
+            if(user){
+                await Product.findById(id).then(product=>{
+                    if(product){
+                        console.log(product)
+                        res.render("admin_product_view",{
+                            product:product,
+                            user:user
+                        })
+                    }
+                })
+            }
+        })
+        
+    }catch(err){
+        console.log(err);
+    }
+
+})
+
+//admins management @super admin
+
+router.get("/dashboard/admins-management",user_auth,async(req,res)=>{
+
+   try{
+    const id=req.user;
+await Admin.findById(id).then(async(user)=>{
+    if(user){
+        await Admin.find({}).sort().limit(20).then(admins=>{
+            if(admins){
+                res.render("admins",{
+                    user:user,
+                    admins:admins
+                })
+            }
+        }).catch(err=>{
+            console.log(err);
+        })
+    }
+}).catch(err=>{
+    console.log(err);
+})
+
+   }catch(err){
+    console.log(err)
+   }
+
+})
+
+//add admin @super admin
+
+router.get("/dashboard/add_admin",async(req,res)=>{
+    try{
+        await Admin.findById(req.user).then(admin=>{
+            if(admin){
+                res.render("add_admin",{
+                    user:admin
+                })
+            }
+        }).catch(err=>{
+            console.log(err);
+        })
+    }catch(err){
+        console.log(err);
+    }
+})
+
 
 module.exports=router;

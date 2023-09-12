@@ -8,8 +8,14 @@ const adminSchema = new mongoose.Schema({
   isAdmin:{
     type:Boolean,
     default:true
-  
-  
+  },
+  rights:{
+type:Array,
+default:['add_product']
+  },
+isSuper:{
+  type:Boolean,
+  default:false
 }
  })
 

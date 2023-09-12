@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css" integrity="sha512-SzlrxWUlpfuzQ+pcUCosxcglQRNAq/DZjVsC0lE40xsADsfeQoEypE+enwcOiGjk/bSuGGKHEyjSoQ1zVisanQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="/style/css.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <%-include("./partials/navbar.ejs")%>
+
+      <div class="container">
+    <div class="details" 
+    style="overflow: hidden !important ;position:relative !important;width:90% !important;">
+   <div class="image" style="border:1px solid rgba(0,0,0,0.35) !important;border-radius:34px !important;overflow: hidden !important;position:relative !important;width:50% ;height:90% !important;"><img src="<%=product.img%>" style="position: relative !important;width:100% !important;height:100% !important;"></div>
+    
+    <div style="position:relative !important;width:40% ; box-shadow:0 3px 5px rgba(0,0,0,0.2) !important;" class="product-info">
+     <h2><%=product.title%></h2>
+     <p  class="text-center p-1"><%=product.desc%></p>
+     <p style="font-weight: bold;">$<%=product.price%> Only</p>
+     
+     <a href="/addcart/<%=product.id%>" class="btn blue">Add to Cart
+     </a>     
+
+    </div>
+
+
+    </div>
+
+ 
+
+    </div>
+
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
+
+<script>
+     M.AutoInit();
+ 
+ document.addEventListener('DOMContentLoaded', function() {
+   var elems = document.querySelectorAll('.fixed-action-btn');
+   var instances = M.FloatingActionButton.init(elems, options);
+ });
+</script>
+
+
+
+
+
+      </body>
+      </html>

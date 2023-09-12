@@ -9,31 +9,7 @@
     <title>Document</title>
 </head>
 <body>
-    <div class="navbar-fixed" style="z-index:1020 !important;">
-        <nav class="black darken-4">
-          <div class="nav-wrapper container">
-              <a href="/dashboard" class="brand-logo center mylogo">Admin Panel</a>
-              <a href="#" data-target="mobile-demo" class="sidenav-trigger
-              show-on-large"><i class="fas fa-bars"></i></a>
-              
-              <ul class="slide-out sidenav " id="mobile-demo" > 
-                  <li class="myli"><div class="my-view" style="background-color: black !important ;border-bottom:2px solid BLACK  !important;" >
-                      <div class="profile-img">
-                      <img src="/assets/atak.jpg">
-                     </div>
-                      <p style="color: white;font-weight: 600;letter-spacing:1px;font-size:22px;text-align:center;"><%=user.username%></p>
-                           
-                              
-                        
-                    </div></li>
-                    <li><a href="/dashboard" class="blue-text "><i class="fa fa-user blue-text"></i>Dashboard</a></li>
-                    <li><a href="/dashboard/add_product" class="blue-text active"><i class="fas fa-box blue-text"></i>Add Product</a></li>
-                    <li><a href="/dashboard/keys" class="blue-text"><i class="fas fa-cog blue-text"></i>Settings</a></li>
-                    <li><a href="/admin_logout" class="blue-text"><i class="fa fa-sign-out blue-text" aria-hidden="true"></i>Logout</a></li>
-              </ul>
-          </div>
-      </nav>
-      </div>
+    <%-include("./partials/navbar.ejs")%>
 
       
 <div class="overlay">  <div class="preloader-wrapper small active">
@@ -66,7 +42,7 @@
         </div>
       </div>
       <div class="image-preview">
-        <img id="image-preview" src="#" alt="Image Preview" style="max-width: 100%; display: none;">
+        <img id="image-preview" src="#" alt="Image Preview" style="max-width: 150px; display: none;">
       </div>
       <div class="input-field">
         <textarea id="description" name="description" class="materialize-textarea" required></textarea>
@@ -163,6 +139,7 @@ document.querySelector(".overlay").classList.add("activate-loader");
         imagePreview.src = '';
         document.querySelector(".overlay").classList.add("activate-loader");
         M.toast({html: 'Product Added Successfully'})
+        document.getElementById("description").style.height='auto';
         } else {
           // Handle errors
           console.error('Error adding product.');

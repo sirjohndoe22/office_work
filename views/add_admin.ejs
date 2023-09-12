@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css" integrity="sha512-SzlrxWUlpfuzQ+pcUCosxcglQRNAq/DZjVsC0lE40xsADsfeQoEypE+enwcOiGjk/bSuGGKHEyjSoQ1zVisanQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="/style/css.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+
+    <%-include("./partials/navbar")%>
+
+<div class="container">
+
+
+
+
+<form method="post" style="padding-top: 5% !important;" id="add_admin">
+
+ 
+
+    <div class="row" >
+        
+        <div class="input-field col s6">
+          <input id="name" type="text" class="validate">
+          <label for="name">Name</label>
+        </div>
+
+        <div class="input-field col s6">
+            <input id="email" type="email" class="validate">
+            <label for="email">Email</label>
+          </div>
+      </div>
+      
+      
+      <div class="row ">
+        <div class="input-field col s5">
+          <input id="password" type="password" class="validate">
+          <label for="password">Password</label>
+        </div>
+      </div>
+
+      <h5 style="padding:20px;">Rights </h5>
+<div class="row ">
+    <div>  
+    <p class="col l3 m5 s5"> 
+        <label>
+          <input type="checkbox" />
+          <span>Analytics</span>
+        </label>
+      </p>
+
+      <p class="col l3 m5 s5">
+        <label>
+          <input type="checkbox" />
+          <span>Manage Products</span>
+        </label>
+      </p></div>
+      <div class="l5 m10 s10">
+      <button type="submit" class="btn green">Submit</button>
+
+      </div>
+      </div>
+
+
+</form>
+
+
+
+
+</div>
+
+
+
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
+<script> M.AutoInit();
+  
+  document.addEventListener('DOMContentLoaded', function() {
+    var elems = document.querySelectorAll('.fixed-action-btn');
+    var instances = M.FloatingActionButton.init(elems, options);
+  });
+  </script>
+
+  </body>
+  </html>
