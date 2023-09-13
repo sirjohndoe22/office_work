@@ -467,6 +467,9 @@ margin-Left: 10% !important; /* Adjust the value as needed */
     bottom:4%;
     right:2%;
 }
+.float{
+    position: fixed;
+}
 
 @media (max-width:860px) {
 .custom-gap {

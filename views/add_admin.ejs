@@ -14,59 +14,51 @@
 
 <div class="container">
 
+  <div class="overlay1">
+    <div class="loading"></div>
+  </div>
 
-
-
-<form method="post" style="padding-top: 5% !important;" id="add_admin">
-
- 
-
-    <div class="row" >
-        
+  <form method="post" style="padding-top: 5% !important;" id="add_admin">
+  
+    <div class="row">
         <div class="input-field col s6">
-          <input id="name" type="text" class="validate">
-          <label for="name">Name</label>
+            <input id="name" type="text" required class="validate" name="username">
+            <label for="name">Name</label>
         </div>
-
         <div class="input-field col s6">
-            <input id="email" type="email" class="validate">
+            <input id="email" type="email" required class="validate" name="email">
             <label for="email">Email</label>
-          </div>
-      </div>
-      
-      
-      <div class="row ">
-        <div class="input-field col s5">
-          <input id="password" type="password" class="validate">
-          <label for="password">Password</label>
         </div>
-      </div>
+    </div>
 
-      <h5 style="padding:20px;">Rights </h5>
-<div class="row ">
-    <div>  
-    <p class="col l3 m5 s5"> 
-        <label>
-          <input type="checkbox" />
-          <span>Analytics</span>
-        </label>
-      </p>
+    <div class="row">
+        <div class="input-field col s5">
+            <input id="password" type="password" required class="validate" name="password">
+            <label for="password">Password</label>
+        </div>
+    </div>
 
-      <p class="col l3 m5 s5">
-        <label>
-          <input type="checkbox" />
-          <span>Manage Products</span>
-        </label>
-      </p></div>
-      <div class="l5 m10 s10">
-      <button type="submit" class="btn green">Submit</button>
-
-      </div>
-      </div>
-
-
+    <h5 style="padding: 20px;">Rights</h5>
+    <div class="row">
+        <div>
+            <p class="col l3 m5 s5">
+                <label>
+                    <input type="checkbox" name="analytics">
+                    <span>Analytics</span>
+                </label>
+            </p>
+            <p class="col l3 m5 s5">
+                <label>
+                    <input type="checkbox" name="manageproducts">
+                    <span>Manage Products</span>
+                </label>
+            </p>
+        </div>
+        <div class="l5 m10 s10">
+            <button type="submit" class="btn green">Submit</button>
+        </div>
+    </div>
 </form>
-
 
 
 
@@ -84,6 +76,46 @@
     var elems = document.querySelectorAll('.fixed-action-btn');
     var instances = M.FloatingActionButton.init(elems, options);
   });
+
+//fetch request
+
+document.getElementById("add_admin").addEventListener("submit", (e) => {
+  e.preventDefault();
+  document.querySelector(".overlay1").style.display='flex';
+  const form = document.getElementById("add_admin"); 
+  const data = new FormData(form);
+
+  fetch("/dashboard/add_admin",{
+    method:'POST',
+    headers:{
+      "Content-Type":"application/json"
+    },
+    body:JSON.stringify(Object.fromEntries(data))
+  }).then((response)=>{
+    if(response){
+      return response.json();
+    }
+    
+  }).then((final)=>{
+    if(final){
+      form.reset();
+      document.querySelector(".overlay1").style.display='none';
+      M.toast({html: final.message});
+    } else{
+      form.reset();
+      document.querySelector(".overlay1").style.display='none';
+      M.toast({html:final.message});
+    }
+  
+  })
+
+
+
+});
+
+
+
+
   </script>
 
   </body>

@@ -15,7 +15,8 @@
  
     <div class="container">
         <a href="/dashboard/add_admin" class="btn-floating float btn-large waves-effect waves-light red"><i class="fas fa-add"></i></a>
-
+ 
+        <div class="overlay1"><div class="loading"></div></div>
     <table class="striped white" style="color: black !important; ">
         <thead>
           <tr>
@@ -28,12 +29,21 @@
         <tbody>
           <%if(admins.length>0){%>
             <%admins.forEach(admin=>{%>
+              <%if(admin.email == user.email) {%>
+                <tr>
+                  <td><%=admin.username%></td>
+                  <td><%=admin.email%></td>
+                  <td>Me</td>
+              </tr>
+
+<%}else{%>
                 <tr>
                     <td><%=admin.username%></td>
                     <td><%=admin.email%></td>
-                    <td><button class="btn red">Remove</button>
-                    <button class="btn blue">Edit</button></td>
+                    <td><button class="btn red" data-id="<%=admin._id%>">Remove</button>
+                    <a href="/dashboard/edit_admin/<%=admin._id%>" class="btn blue">Edit</a></td>
                 </tr>
+                <%}%>
                 <%})%>
                 <%}else{%>
                     <p>Empty</p>
@@ -54,7 +64,43 @@
     var elems = document.querySelectorAll('.fixed-action-btn');
     var instances = M.FloatingActionButton.init(elems, options);
   });
-  </script>
+
+document.querySelector("tbody").addEventListener("click",(e)=>{
+  if(e.target.classList.contains("red")){
+         e.preventDefault();
+         const remover=e.target
+         document.querySelector(".overlay1").style.display='flex';
+        const remove_id=remover.getAttribute("data-id");
+        
+        fetch("/dashboard/remove_admin/"+remove_id,{
+    method:"GET",
+    headers:{
+      "Content-Type":"application/json"
+    }
+   
+  })
+  .then(response=>{
+    if(response.ok){
+      return response.json();
+    }
+  }).then(final=>{
+    document.querySelector(".overlay1").style.display='none';
+    remover.parentElement.parentElement.style.display='none';
+    M.toast({html:final});
+  })
+
+      }
+    })
+
+
+    
+  
+
+
+
+</script>
+
+
 
   </body>
   </html>

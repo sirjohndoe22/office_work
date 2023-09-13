@@ -624,7 +624,7 @@ router.post("/dashboard/add_product", upload.single('image'),async(req,res)=>{
         await Product.insertMany({title:title,img:result.secure_url,desc:description
         ,category:category,price:price,quantity:quantity}).then(uploaded=>{
             if(uploaded){
-                res.status=200;
+                res.status=201;
                 res.end();
             }
         }).catch(err=>{
@@ -750,7 +750,7 @@ await Admin.findById(id).then(async(user)=>{
 
 //add admin @super admin
 
-router.get("/dashboard/add_admin",async(req,res)=>{
+router.get("/dashboard/add_admin",user_auth,async(req,res)=>{
     try{
         await Admin.findById(req.user).then(admin=>{
             if(admin){
@@ -761,6 +761,151 @@ router.get("/dashboard/add_admin",async(req,res)=>{
         }).catch(err=>{
             console.log(err);
         })
+    }catch(err){
+        console.log(err);
+    }
+})
+
+
+//add admin @super admin
+
+
+
+router.post('/dashboard/add_admin', user_auth,async (req, res) => {
+    try {
+        
+      const { username, email, password, analytics, manageproducts } = req.body;
+  
+      // Check if the admin already exists
+      const admin = await Admin.findOne({ email: email });
+  
+      if (admin) {
+        return res.status(400).json({ message: "Admin already exists" });
+      }
+  
+      // Create a new Admin document
+      const document = new Admin({
+        username: username,
+        email: email,
+        password: password,
+        rights: []
+      });
+  
+      // Add rights based on conditions
+      if (analytics === 'on') {
+        document.rights.push('analytics');
+      }
+  
+      if (manageproducts === 'on') {
+        document.rights.push('manage_products');
+      }
+  
+      // Save the admin document
+      const added = await document.save();
+  
+      if (added) {
+        
+        res.status(201).json({ message: "Admin created successfully" });
+      } else {
+        
+        res.status(500).json({ message: "Failed to create admin" });
+      }
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+  
+  //remove admin @super admin
+
+  router.get('/dashboard/remove_admin/:id',user_auth,async(req,res)=>{
+    try{
+        console.log(req.params.id)
+        const id=req.params.id;
+        await Admin.deleteOne({_id:id}).then(deleted=>{
+            if(deleted){
+                res.json("Successfully Removed");
+            }
+            else{
+                res.json('some issue')
+            }
+        }).catch(err=>{
+            console.log(err);
+        })
+    }catch(err){
+        console.log(err);
+    }
+  })
+
+//edit admin @super admin
+
+router.get("/dashboard/edit_admin/:id",user_auth,async(req,res)=>{
+    try{
+        const id=req.params.id; //id of the admin that has to be edited
+     
+        //getting current admin
+        await Admin.findById(req.user).then(async(admin)=>{
+            if(admin){
+                await Admin.findById(id).then(user=>{
+                    if(user){
+                        res.render("edit_admin.ejs",{
+                            user:admin,
+                            edit_user:user
+                        })
+                    }
+                })
+            }
+})}catch(err){
+        console.log(err);
+    }
+})
+
+//edit admin @super admin
+
+router.post('/dashboard/edit_admin/:id',user_auth,async(req,res)=>{
+    try{
+        
+        const {username,email,password,analytics,manage_products} = req.body;
+        await Admin.updateMany({_id:req.params.id},{$set:{
+            username:username,
+            password:password
+}}).then(async(done)=>{
+     if(done){
+        
+        const admin = await Admin.findByIdAndUpdate(
+            req.params.id,
+            {
+              $addToSet: { rights: { $each: [] } } // Initialize with an empty array
+            },
+            { new: true }
+          );
+      
+          if (!admin) {
+            return res.status(404).json({ message: 'Admin not found' });
+          }
+      
+          // Check if 'manage_products' and 'analytics' are present in req.body and add them to the 'rights' array
+          if (manage_products === 'on') {
+            admin.rights.addToSet('manage_products');
+          }
+          if (manage_products !== 'on' && admin.rights.includes('manage_products')) {
+            admin.rights.pull('manage_products');
+          }
+          if (analytics === 'on') {
+            admin.rights.addToSet('analytics');
+          }
+
+          if (analytics !== 'on' && admin.rights.includes('analytics')) {
+            admin.rights.pull('analytics');
+          }
+      
+          await admin.save();
+          res.status(201).json({ message: 'Account Edited' });
+     }
+})
+         
+    
+    
     }catch(err){
         console.log(err);
     }

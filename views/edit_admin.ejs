@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css" integrity="sha512-SzlrxWUlpfuzQ+pcUCosxcglQRNAq/DZjVsC0lE40xsADsfeQoEypE+enwcOiGjk/bSuGGKHEyjSoQ1zVisanQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="/style/css.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+
+    <%-include("./partials/navbar.ejs")%>
+
+
+
+    <div class="container">
+
+        <div class="overlay1">
+          <div class="loading"></div>
+        </div>
+      
+        <form method="post" style="padding-top: 5% !important;" id="edit_admin">
+        
+          <div class="row">
+              <div class="input-field col s6">
+                  <input id="name" type="text"  value="<%=edit_user.username%>"  class="validate name" name="username">
+                  <label for="name">Name</label>
+              </div>
+             
+          </div>
+      
+          <div class="row">
+              <div class="input-field col s5">
+                  <input id="password"  type="password" value="<%=edit_user.password%>" class="validate password" name="password">
+                  <label for="password">Password</label>
+              </div>
+          </div>
+      
+          <h5 style="padding: 20px;">Rights</h5>
+          <div class="row">
+              <div>
+                  <%if(edit_user.rights.includes("analytics")) {%>
+                  <p class="col l3 m5 s5">
+                    <label>
+                        <input type="checkbox" checked name="analytics">
+                        <span>Analytics</span>
+                    </label>
+                  </p>
+                <%}else{%>
+                    <p class="col l3 m5 s5">
+                        <label>
+                            <input type="checkbox" name="analytics">
+                            <span>Analytics</span>
+                        </label>
+                    </p>
+                    <%}%>
+
+                    <%if(edit_user.rights.includes("manage_products")) {%>
+                        <p class="col l3 m5 s5">
+                          <label>
+                              <input type="checkbox" checked name="manageproducts">
+                              <span>Manage Products</span>
+                          </label>
+                        </p>
+                      <%}else{%>
+                          <p class="col l3 m5 s5">
+                              <label>
+                                  <input type="checkbox" name="manageproducts">
+                                  <span>Manage Products</span>
+                              </label>
+                          </p>
+                          <%}%>
+
+              </div>
+              <div class="l5 m10 s10">
+                  <button type="submit" class="btn brown">Edit</button>
+              </div>
+          </div>
+      </form>
+      
+      
+      
+      </div>
+
+
+
+
+<!--Scripts-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
+<script> M.AutoInit();
+  
+  document.addEventListener('DOMContentLoaded', function() {
+    var elems = document.querySelectorAll('.fixed-action-btn');
+    var instances = M.FloatingActionButton.init(elems, options);
+  });
+
+
+
+  
+document.getElementById("edit_admin").addEventListener("submit", (e) => {
+  e.preventDefault();
+  document.querySelector(".overlay1").style.display='flex';
+  const form = document.getElementById("edit_admin"); 
+  const data = new FormData(form);
+
+  fetch("/dashboard/edit_admin/<%=edit_user._id%>",{
+    method:'POST',
+    headers:{
+      "Content-Type":"application/json"
+    },
+    body:JSON.stringify(Object.fromEntries(data))
+  }).then((response)=>{
+    if(response){
+      return response.json();
+    }
+    
+  }).then((final)=>{
+    if(final){
+      form.reset();
+      document.querySelector(".overlay1").style.display='none';
+      M.toast({html: final.message});
+      document.querySelector(".name").value='';
+      document.querySelector(".password").value='';
+    } else{
+      form.reset();
+      document.querySelector(".overlay1").style.display='none';
+      M.toast({html:final.message});
+      document.querySelector(".name").value='';
+      document.querySelector(".password").value='';
+    }
+  
+  })
+
+})
+  </script>
+
+</body>
+</html>
