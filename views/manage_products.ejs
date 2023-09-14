@@ -9,35 +9,7 @@
     <title>Document</title>
 </head>
 <body>
-    <div class="navbar-fixed" style="z-index:1020 !important;">
-        <nav class="black darken-4">
-          <div class="nav-wrapper container">
-              <a href="/dashboard" class="brand-logo center mylogo">Admin Panel</a>
-              <a href="#" data-target="mobile-demo" class="sidenav-trigger
-              show-on-large"><i class="fas fa-bars"></i></a>
-              
-              <ul class="slide-out sidenav " id="mobile-demo" > 
-                  <li class="myli"><div class="my-view" style="background-color: black !important ;border-bottom:2px solid BLACK  !important;" >
-                      <div class="profile-img">
-                      <img src="/assets/atak.jpg">
-                     </div>
-                      <p style="color: white !important;font-weight: 600;letter-spacing:1px;font-size:22px;text-align:center;"><%=user.username%></p>
-                           
-                              
-                        
-                    </div></li>
-                    <li><a href="/dashboard" class="blue-text "><i class="fa fa-user blue-text"></i>Dashboard</a></li>
-                    <li><a href="/dashboard/add_product" class="blue-text"><i class="fas fa-box blue-text"></i>Add Product</a></li>
-                    <li><a href="/dashboard/manage_products" class="blue-text active"><i class="fas fa-wrench blue-text"></i>Manage Products</a></li>
-                    <li><a href="/dashboard/admins-management" class="blue-text"><i class="fas fa-users-cog blue-text" aria-hidden="true"></i>Admins</a></li>
-                    <li><a href="/admin_logout/settings" class="blue-text"><i class="fa fa-cog blue-text" aria-hidden="true"></i>Settings</a></li>
-                    <li><a href="/admin_logout" class="blue-text"><i class="fa fa-sign-out blue-text" aria-hidden="true"></i>Logout</a></li>
-                    
-                  </ul>
-          </div>
-      </nav>
-      </div>
-
+   <%-include("./partials/navbar.ejs")%>
 
 <div class="container">
 <div class="overlay1"> <div class="loading"></div></div>

@@ -5,6 +5,7 @@ require("../Config/strategy")(passport);
 require("../Config/admin_strategy")(passport);
 const mongoose=require("mongoose");
 const Admin=require("../model/admin");
+const ActivityLog=require("../model/activity");
 const Token=require("../model/token");
 const user_auth=require("../helper/user");
 const admin_auth=require("../helper/admin");
@@ -142,7 +143,45 @@ passport.authenticate('admin',{
  })
 
 
- router.get("/dashboard",async (req,res)=>{
+ router.get("/dashboard",user_auth,async(req,res,next)=>{
+    try{
+        const id=req.user;
+        await Admin.findById(id).then(user=>{
+         if(user.isSuper==true || user.rights.includes("analytics")){
+             next()
+         }   
+        
+            else{
+                res.redirect("/dashboard/add_product");
+            }
+        })
+     }catch(err){
+        console.log(err);
+     }
+ },
+ async (req, res, next) => {
+    try {
+        await Admin.findById(req.user).then(async(admin)=>{
+            if(admin){
+                const activity = new ActivityLog({
+                    userId: req.user,
+                    username:admin.username, 
+                    action:'login',
+                    activities:[],
+                    ipAddress: req.ip,
+                  });
+                  await activity.save();
+                
+                  next();
+            }
+        })
+    } catch (error) {
+      console.error('Error logging activity:', error);
+      next(error);
+    }
+  }
+ 
+ ,async (req,res)=>{
     try{
    const data=await Admin.findById(req.user).then((user)=>{
         if(user){
@@ -161,7 +200,7 @@ passport.authenticate('admin',{
    //render error template;
    })
 }catch(err){
-    console.log(err);
+    res.json("404")
     //template render for 500 err;
 }
 })
@@ -514,7 +553,25 @@ router.get("/logout",logoutMiddleware);
 //@payments data
 //daily
 
-router.get("/admin_logout",logoutAdmin);
+router.get("/admin_logout",async (req, res, next) => {
+    try {
+        await Admin.findById(req.user).then(async(admin)=>{
+            if(admin){
+                const activity = new ActivityLog({
+                    userId: req.user, 
+                    action:'logout',
+                    username:admin.username,
+                    ipAddress: req.ip,
+                  });
+                  await activity.save();
+                  next();
+            }
+        })
+    } catch (error) {
+      console.error('Error logging activity:', error);
+      next(error);
+    }
+  },logoutAdmin);
 
 router.get('/getDailyPayments', async (req, res) => {
     try {
@@ -616,34 +673,79 @@ const storage = multer.diskStorage({
 
 
 
-router.post("/dashboard/add_product", upload.single('image'),async(req,res)=>{
-      
-       try{
-        const result = await cloudinary.uploader.upload(req.file.path);
-        const {title,description,price,quantity,category}  =req.body; 
-        await Product.insertMany({title:title,img:result.secure_url,desc:description
-        ,category:category,price:price,quantity:quantity}).then(uploaded=>{
-            if(uploaded){
-                res.status=201;
-                res.end();
+router.post("/dashboard/add_product", upload.single('image'),async (req, res) => {
+    try {
+      // Upload the image to Cloudinary
+      const result = await cloudinary.uploader.upload(req.file.path);
+  
+      // Extract product data from the request body
+      const { title, description, price, quantity, category } = req.body;
+  
+      // Insert the product into MongoDB
+      const product = new Product({
+        title: title,
+        img: result.secure_url,
+        desc: description,
+        category: category,
+        price: price,
+        quantity: quantity
+      });
+  
+      const insertedProduct = await product.save();
+  
+      if (insertedProduct) {
+        // Update the activity log
+        const latestActivity = await ActivityLog.findOne({ userId: req.user })
+          .sort({ timestamp: -1 })
+          .exec();
+  
+        if (latestActivity) {
+          await ActivityLog.updateOne(
+            { _id: latestActivity._id },
+            {
+              $push: {
+                activities: 'Added a Product'
+              }
             }
-        }).catch(err=>{
-            console.log(err);
+          );
+  
+          res.status(201).json('Product Added!');
+        } else {
+          res.status(404).json('No activity found for the user');
+        }
+      } else {
+        res.status(500).json('Failed to insert the product');
+      }
+    } catch (err) {
+      console.error(err);
+      res.status(500).json('Internal Server Error');
+    }
         })
-        
-       }catch(err){
-        console.log(err);
-       }
-     
+    
+       
 
 
-})
-
+    
 
 //manage products @super admin
 
 
-router.get("/dashboard/manage_products",user_auth,async(req,res)=>{
+router.get("/dashboard/manage_products",user_auth,async(req,res,next)=>{
+    try{
+        const id=req.user;
+        await Admin.findById(id).then(user=>{
+         if(user.isSuper==true || user.rights.includes("manage_products")){
+             next()
+         }   
+         
+            else{
+                res.redirect("/dashboard/add_product");
+            }
+        })
+     }catch(err){
+        console.log(err);
+     }
+ },async(req,res)=>{
     try{
         const id=req.user;
         
@@ -671,29 +773,76 @@ router.get("/dashboard/manage_products",user_auth,async(req,res)=>{
 
 //remove product @super admin
 
-router.get("/remove-product/:id",user_auth,async(req,res)=>{
-  try{
-    const id=req.params.id;
-     await Product.deleteOne({_id:id}).then(done=>{
-        if(done)
-        {
-            res.json("Product Removed Successfully");
+router.get("/remove-product/:id",user_auth,async(req,res,next)=>{
+    try{
+        const id=req.user;
+        await Admin.findById(id).then(user=>{
+         if(user.isSuper==true || user.rights.includes("manage_products")){
+             next()
+         }   
+         
+            else{
+                res.redirect("/dashboard/add_product");
+            }
+        })
+     }catch(err){
+        console.log(err);
+     }
+ },async (req, res) => {
+    try {
+      const id = req.params.id;
+  
+      // Delete the product
+      const deleteResult = await Product.deleteOne({ _id: id });
+  
+      if (deleteResult.deletedCount === 1) {
+        // If the product was deleted successfully, update the activity log
+        const latestActivity = await ActivityLog.findOne({ userId: req.user })
+          .sort({ timestamp: -1 })
+          .exec();
+  
+        if (latestActivity) {
+          await ActivityLog.updateOne(
+            { _id: latestActivity._id },
+            {
+              $push: {
+                activities: 'remove a Product'
+              }
+            }
+          );
+  
+          res.status(201).json('Product Removed!');
+        } else {
+          res.status(404).json('No activity found for the user');
         }
-        else{
-            res.json("some issue");
-        }
-     })
-
-  }catch(err){
-    console.log(err);
-  }
- 
+      } else {
+        res.status(404).json('Product not found');
+      }
+    } catch (err) {
+      console.error(err);
+      res.status(500).json('Internal Server Error');
+    }
 })
 
 
 //view product @super admin
 
-router.get("/dashboard/product/:id",user_auth,async(req,res)=>{
+router.get("/dashboard/product/:id",user_auth,async(req,res,next)=>{
+    try{
+        const id=req.user;
+        await Admin.findById(id).then(user=>{
+         if(user.isSuper==true || user.rights.includes("manage_products")){
+             next()
+         }   
+         
+            else{
+                res.redirect("/dashboard/add_product");
+            }
+        })
+     }catch(err){
+        console.log(err);
+     }
+ },async(req,res)=>{
 
     try{
 
@@ -721,7 +870,22 @@ router.get("/dashboard/product/:id",user_auth,async(req,res)=>{
 
 //admins management @super admin
 
-router.get("/dashboard/admins-management",user_auth,async(req,res)=>{
+router.get("/dashboard/admins-management",user_auth,async(req,res,next)=>{
+    try{
+        const id=req.user;
+        await Admin.findById(id).then(user=>{
+         if(user.isSuper==true){
+             next()
+         }   
+         
+            else{
+                res.redirect("/dashboard/add_product");
+            }
+        })
+     }catch(err){
+        console.log(err);
+     }
+ },async(req,res)=>{
 
    try{
     const id=req.user;
@@ -750,7 +914,22 @@ await Admin.findById(id).then(async(user)=>{
 
 //add admin @super admin
 
-router.get("/dashboard/add_admin",user_auth,async(req,res)=>{
+router.get("/dashboard/add_admin",user_auth,async(req,res,next)=>{
+    try{
+        const id=req.user;
+        await Admin.findById(id).then(user=>{
+         if(user.isSuper==true){
+             next()
+         }   
+         
+            else{
+                res.redirect("/dashboard/add_product");
+            }
+        })
+     }catch(err){
+        console.log(err);
+     }
+ },async(req,res)=>{
     try{
         await Admin.findById(req.user).then(admin=>{
             if(admin){
@@ -767,11 +946,29 @@ router.get("/dashboard/add_admin",user_auth,async(req,res)=>{
 })
 
 
+
+
 //add admin @super admin
 
 
 
-router.post('/dashboard/add_admin', user_auth,async (req, res) => {
+
+router.post('/dashboard/add_admin', user_auth,async(req,res,next)=>{
+    try{
+        const id=req.user;
+        await Admin.findById(id).then(user=>{
+         if(user.isSuper==true){
+             next()
+         }   
+         
+            else{
+                res.redirect("/dashboard/add_product");
+            }
+        })
+     }catch(err){
+        console.log(err);
+     }
+ },async (req, res) => {
     try {
         
       const { username, email, password, analytics, manageproducts } = req.body;
@@ -818,7 +1015,22 @@ router.post('/dashboard/add_admin', user_auth,async (req, res) => {
   
   //remove admin @super admin
 
-  router.get('/dashboard/remove_admin/:id',user_auth,async(req,res)=>{
+  router.get('/dashboard/remove_admin/:id',user_auth,async(req,res,next)=>{
+    try{
+        const id=req.user;
+        await Admin.findById(id).then(user=>{
+         if(user.isSuper==true){
+             next()
+         }   
+         
+            else{
+                res.redirect("/dashboard/add_product");
+            }
+        })
+     }catch(err){
+        console.log(err);
+     }
+ },async(req,res)=>{
     try{
         console.log(req.params.id)
         const id=req.params.id;
@@ -839,7 +1051,22 @@ router.post('/dashboard/add_admin', user_auth,async (req, res) => {
 
 //edit admin @super admin
 
-router.get("/dashboard/edit_admin/:id",user_auth,async(req,res)=>{
+router.get("/dashboard/edit_admin/:id",user_auth,async(req,res,next)=>{
+    try{
+        const id=req.user;
+        await Admin.findById(id).then(user=>{
+         if(user.isSuper==true){
+             next()
+         }   
+         
+            else{
+                res.redirect("/dashboard/add_product");
+            }
+        })
+     }catch(err){
+        console.log(err);
+     }
+ },async(req,res)=>{
     try{
         const id=req.params.id; //id of the admin that has to be edited
      
@@ -862,10 +1089,25 @@ router.get("/dashboard/edit_admin/:id",user_auth,async(req,res)=>{
 
 //edit admin @super admin
 
-router.post('/dashboard/edit_admin/:id',user_auth,async(req,res)=>{
+router.post('/dashboard/edit_admin/:id',user_auth,async(req,res,next)=>{
+    try{
+        const id=req.user;
+        await Admin.findById(id).then(user=>{
+         if(user.isSuper==true){
+             next()
+         }   
+         
+            else{
+                res.redirect("/dashboard/add_product");
+            }
+        })
+     }catch(err){
+        console.log(err);
+     }
+ },async(req,res)=>{
     try{
         
-        const {username,email,password,analytics,manage_products} = req.body;
+        const {username,email,password,analytics,manageproducts} = req.body;
         await Admin.updateMany({_id:req.params.id},{$set:{
             username:username,
             password:password
@@ -875,7 +1117,7 @@ router.post('/dashboard/edit_admin/:id',user_auth,async(req,res)=>{
         const admin = await Admin.findByIdAndUpdate(
             req.params.id,
             {
-              $addToSet: { rights: { $each: [] } } // Initialize with an empty array
+              $set: { rights:[]  } // Initialize with an empty array
             },
             { new: true }
           );
@@ -885,17 +1127,17 @@ router.post('/dashboard/edit_admin/:id',user_auth,async(req,res)=>{
           }
       
           // Check if 'manage_products' and 'analytics' are present in req.body and add them to the 'rights' array
-          if (manage_products === 'on') {
-            admin.rights.addToSet('manage_products');
+          if (manageproducts == 'on') {
+            admin.rights.push('manage_products');
           }
-          if (manage_products !== 'on' && admin.rights.includes('manage_products')) {
+          if (manageproducts != 'on' ) {
             admin.rights.pull('manage_products');
           }
-          if (analytics === 'on') {
-            admin.rights.addToSet('analytics');
+          if (analytics =='on') {
+            admin.rights.push('analytics');
           }
 
-          if (analytics !== 'on' && admin.rights.includes('analytics')) {
+          if (analytics != 'on' ) {
             admin.rights.pull('analytics');
           }
       
@@ -911,5 +1153,85 @@ router.post('/dashboard/edit_admin/:id',user_auth,async(req,res)=>{
     }
 })
 
+//activities
 
+
+router.get("/dashboard/activities",user_auth,async(req,res,next)=>{
+    try{
+        const id=req.user;
+        await Admin.findById(id).then(user=>{
+         if(user.isSuper==true){
+             next()
+         }   
+         
+            else{
+                res.redirect("/dashboard/add_product");
+            }
+        })
+     }catch(err){
+        console.log(err);
+     }
+ },async(req,res)=>{
+
+ try{
+   const id=req.user;
+   await Admin.findById(id).then(async(admin)=>{
+    if(admin){
+        await ActivityLog.find({}).sort().limit(100).then(logs=>{
+            if(logs){
+                res.render("activities.ejs",{
+                    logs:logs,
+                    user:admin
+                })
+            }
+           })
+        
+    }
+   })
+
+ }catch(err){
+    console.log(err);
+ }
+
+})
+
+
+//sessions activities details
+
+router.get("/dashboard/activities/:id",user_auth,async(req,res,next)=>{
+    try{
+        const id=req.user;
+        await Admin.findById(id).then(user=>{
+         if(user.isSuper==true){
+             next()
+         }   
+         
+            else{
+                res.redirect("/dashboard/add_product");
+            }
+        })
+     }catch(err){
+        console.log(err);
+     }
+ },async(req,res)=>{
+    try{
+    const id=req.user;
+    await Admin.findById(id).then(user=>{
+     if(user){
+         ActivityLog.findById(req.params.id).then(activity=>{
+            console.log(req.params.id)
+            res.render("sessions.ejs",{
+                user:user,
+                activities:activity
+            })
+         })
+     }   
+     
+        
+    })
+}catch(err){
+    console.log(err);
+}
+})
+ 
 module.exports=router;

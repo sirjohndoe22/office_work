@@ -7,18 +7,44 @@
           
           <ul class="slide-out sidenav " id="mobile-demo" > 
               <li class="myli"><div class="my-view" style="background-color: black !important ;border-bottom:2px solid BLACK  !important;" >
-                  <div class="profile-img">
-                  <img src="/assets/atak.jpg">
+                <%if(user.isSuper==true){%>
+                  
+                <div class="profile-img">
+                  <img src="/assets/admin.jpg" style="object-fit:cover  !important;">
                  </div>
+                 <%}else{%>
+                  <div class="profile-img" >
+                    <img src="/assets/normal.png" style="object-fit:fill !important;">
+                   </div>
+              <%}%>
                   <p style="color: white;font-weight: 600;letter-spacing:1px;font-size:22px;text-align:center;"><%=user.username%></p>
                        
                           
                     
                 </div></li>
+                <%if(user.isSuper==true || user.rights.includes("analytics")){%>
                 <li><a href="/dashboard" class="blue-text active"><i class="fa fa-user blue-text"></i>Dashboard</a></li>
+               <%}else{%>
+                <li><a href="javascript:void(0)" class="blue-text active"><i class="fa fa-user blue-text"></i>Dashboard</a></li>
+               <%}%> 
                 <li><a href="/dashboard/add_product" class="blue-text"><i class="fas fa-box blue-text"></i>Add Product</a></li>
+                <%if(user.isSuper==true || user.rights.includes("manage_products")){%>
+               
                 <li><a href="/dashboard/manage_products" class="blue-text"><i class="fas fa-wrench blue-text"></i>Manage Products</a></li>
+                <%}else{%>
+                  <li><a  href="javascript:void(0)" class="blue-text"><i class="fas fa-wrench blue-text"></i>Manage Products</a></li>
+                  <%}%> 
+                  <%if(user.isSuper==true){%>
+                
                 <li><a href="/dashboard/admins-management" class="blue-text"><i class="fas fa-users-cog blue-text" aria-hidden="true"></i>Admins</a></li>
+                <%}else{%>
+                  <li><a href="javascript:void(0)" class="blue-text"><i class="fas fa-users-cog blue-text" aria-hidden="true"></i>Admins</a></li>
+                  <%}%> 
+                  <%if(user.isSuper==true){%>
+                    <li><a href="/dashboard/activities" class="blue-text active"><i class="fa fa-sync blue-text"></i>Activities</a></li>
+                   <%}else{%>
+                    <li><a href="javascript:void(0)" class="blue-text active"><i class="fa fa-sync blue-text"></i>Activities</a></li>
+                   <%}%>
                 <li><a href="/admin_logout/settings" class="blue-text"><i class="fa fa-cog blue-text" aria-hidden="true"></i>Settings</a></li>
                 <li><a href="/admin_logout" class="blue-text"><i class="fa fa-sign-out blue-text" aria-hidden="true"></i>Logout</a></li>
                 
