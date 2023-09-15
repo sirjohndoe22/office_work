@@ -700,11 +700,14 @@ router.post("/dashboard/add_product", upload.single('image'),async (req, res) =>
           .exec();
   
         if (latestActivity) {
+            const time=new Date();
+            const hours=time.getHours();
+            const amPm = hours >= 12 ? 'PM' : 'AM';
           await ActivityLog.updateOne(
             { _id: latestActivity._id },
             {
               $push: {
-                activities: 'Added a Product'
+                activities: `Added a Product: ${title} Time:${time.getHours()}:${time.getMinutes()}:${time.getSeconds()} ${amPm}`
               }
             }
           );
@@ -792,6 +795,16 @@ router.get("/remove-product/:id",user_auth,async(req,res,next)=>{
     try {
       const id = req.params.id;
   
+      // Find the product to be deleted
+      const productToDelete = await Product.findById(id);
+
+      if (!productToDelete) {
+        return res.status(404).json('Product not found');
+      }
+
+      // Store the name of the product
+      const productName = productToDelete.title;
+  
       // Delete the product
       const deleteResult = await Product.deleteOne({ _id: id });
   
@@ -802,11 +815,14 @@ router.get("/remove-product/:id",user_auth,async(req,res,next)=>{
           .exec();
   
         if (latestActivity) {
+            const time=new Date();
+            const hours = time.getHours();
+            const amPm = hours >= 12 ? 'PM' : 'AM';
           await ActivityLog.updateOne(
             { _id: latestActivity._id },
             {
               $push: {
-                activities: 'remove a Product'
+                activities: `removed a Product: ${productName} Time:${time.getHours()}:${time.getMinutes()}:${time.getSeconds()} ${amPm}`
               }
             }
           );
@@ -1177,10 +1193,10 @@ router.get("/dashboard/activities",user_auth,async(req,res,next)=>{
    const id=req.user;
    await Admin.findById(id).then(async(admin)=>{
     if(admin){
-        await ActivityLog.find({}).sort().limit(100).then(logs=>{
-            if(logs){
+        await Admin.find({}).sort().limit(100).then(admins=>{
+            if(admins){
                 res.render("activities.ejs",{
-                    logs:logs,
+                    admins:admins,
                     user:admin
                 })
             }
@@ -1200,6 +1216,7 @@ router.get("/dashboard/activities",user_auth,async(req,res,next)=>{
 
 router.get("/dashboard/activities/:id",user_auth,async(req,res,next)=>{
     try{
+       
         const id=req.user;
         await Admin.findById(id).then(user=>{
          if(user.isSuper==true){
@@ -1216,22 +1233,57 @@ router.get("/dashboard/activities/:id",user_auth,async(req,res,next)=>{
  },async(req,res)=>{
     try{
     const id=req.user;
-    await Admin.findById(id).then(user=>{
-     if(user){
-         ActivityLog.findById(req.params.id).then(activity=>{
-            console.log(req.params.id)
-            res.render("sessions.ejs",{
-                user:user,
-                activities:activity
-            })
-         })
-     }   
-     
-        
-    })
+    const user=await Admin.findById(req.user)
+    const documents = await ActivityLog.find({ userId: req.params.id }).sort({ timestamp: -1 }).exec();
+     if(documents){
+   res.render("sessions",{
+    user:user,
+     docs:documents
+   })       
+ 
+   }
+    
+
+   
 }catch(err){
     console.log(err);
 }
+        
+    
+
 })
  
+
+//getting actions
+
+router.get("/dashboard/activities/actions/:id",user_auth,async(req,res,next)=>{
+    try{
+        const id=req.user;
+        await Admin.findById(id).then(user=>{
+         if(user.isSuper==true){
+             next()
+         }   
+         
+            else{
+                res.redirect("/dashboard/add_product");
+            }
+        })
+     }catch(err){
+        console.log(err);
+     }
+ },async(req,res)=>{
+
+try{
+  await ActivityLog.findById(req.params.id).then(activity=>{
+    if(activity){
+        res.json(activity);
+    }
+  })
+
+}catch(err){
+    console.log(err);
+}
+
+ })
+
 module.exports=router;

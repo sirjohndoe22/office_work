@@ -15,10 +15,41 @@
 
 <div class="container">
     
+  <table class="highlight white" style="color: black !important; ">
+    <thead>
+      <tr>
+          
+          <th>IP Address </th>
+          <th>Action</th>
+          <th>Time</th>
+          <th>Activities</th>
+      </tr>
+    </thead>
 
-<%activities.forEach((i,activity)=>{%>
-    <p><%=activity.activities[i]%></p>
-<%})%>
+    <tbody>
+      <% if(docs.length > 0) { %>
+        <% docs.forEach((doc) => { %>
+          <tr>
+            
+            <td><%= doc.ipAddress %></td>
+            <td><%= doc.action %></td>
+            <td><%= doc.timestamp%></td>
+
+            <td><a class="btn blue session" data-id="<%=doc._id%>">Activities</a></td>
+            
+    
+          </tr>
+          <tr class="new-row"></tr>
+            
+        <% }) %>
+      <% } else { %>
+        <tr><td>No Activity perform</td></tr>
+      <% } %>
+    </tbody>
+
+    
+  </table>
+
 </div>
 
 
@@ -34,5 +65,70 @@
     var elems = document.querySelectorAll('.fixed-action-btn');
     var instances = M.FloatingActionButton.init(elems, options);
   });
+
+
+  
+  document.querySelector("tbody").addEventListener("click", (e) => {
+        if (e.target.classList.contains("session")) {
+            const action = e.target;
+            e.preventDefault();
+            const action_id = action.getAttribute("data-id");
+
+            fetch("/dashboard/activities/actions/" + action_id, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                }
+            })
+            .then(final => {
+                if (final && final.activities && final.activities.length > 0) {
+                    const clickedRow = action.parentElement.parentElement;
+                    const existingDetailsRow = clickedRow.nextElementSibling;
+
+                    // Check if the existing row is already there
+                    if (existingDetailsRow && existingDetailsRow.classList.contains("details-row")) {
+                        // If it exists, remove it to toggle visibility
+                        existingDetailsRow.remove();
+                    } else {
+                        // Create a new row for details
+                        const newRow = document.createElement('tr');
+                        newRow.className = "details-row";
+                        
+                        // Create an empty cell for the first four columns
+                        newRow.innerHTML = `
+                            <td ></td>
+                            <td></td>
+                            
+                            <td></td> <!-- Placeholder for activities -->
+                        `;
+                        
+                        // Get the cell for activities
+                        const activitiesCell = newRow.querySelector('td:last-child');
+
+                        // Iterate through the activities array and append each activity
+                        final.activities.forEach(activity => {
+                            const activityElement = document.createElement('div');
+                            activityElement.style.border='1px solid rgba(0,0,0,0.3)';
+                            activityElement.style.padding='15px'
+                            activityElement.textContent = activity;
+                            
+                            activitiesCell.appendChild(activityElement);
+                        });
+
+                        // Insert the new row below the clicked row
+                        clickedRow.insertAdjacentElement('afterend', newRow);
+                    }
+                }
+            });
+        }
+    });
+</script>
+</body>
+</html>
 </script>
 </body></html>
