@@ -1055,7 +1055,7 @@ router.get("/dashboard/product/:id",user_auth,async(req,res,next)=>{
 
 //admins management @super admin
 
-router.get("/dashboard/admins-management",async(req,res,next)=>{
+router.get("/dashboard/admins-management",user_auth,async(req,res,next)=>{
     try{
         const id=req.user;
         await Admin.findById(id).then(user=>{
