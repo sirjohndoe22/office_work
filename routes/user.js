@@ -10,6 +10,7 @@ const Token=require("../model/token");
 const user_auth=require("../helper/user");
 const admin_auth=require("../helper/admin");
 const Cart=require("../model/cart");
+const CustomerActivityLog=require("../model/customers_activity");
 const router=express.Router();
 const stripe = require("stripe")(process.env.Secret_Key)
 const axios=require("axios");
@@ -205,7 +206,27 @@ passport.authenticate('admin',{
 }
 })
 
-router.get("/home",user_auth,async(req,res)=>{
+router.get("/home",user_auth, async (req, res, next) => {
+    try {
+        await User.findById(req.user).then(async(user)=>{
+            if(user){
+                const Customer= new CustomerActivityLog({
+                    userId: req.user,
+                    username:user.username, 
+                    action:'login',
+                    activities:[],
+                    ipAddress: req.ip,
+                  });
+                  await Customer.save();
+                
+                  next();
+            }
+        })
+    } catch (error) {
+      console.error('Error logging activity:', error);
+      next(error);
+    }
+},async(req,res)=>{
     const id=req.user;
     try{
         const users =await Cart.find({userId:id}).sort({ _id: -1 }).limit(20)
@@ -256,31 +277,55 @@ router.get("/product/:id",user_auth,async(req,res)=>{
 })
 
 
-router.get("/addcart/:id",user_auth,async(req,res)=>{
-   
- try{
-        const userId=req.user;
-        const id=req.params.id;
-       await Product.findById(id).then(async(product)=>{
-        if(product){
-            await Cart.insertMany({title:product.title,userId:userId,
-            price:product.price}).then(added=>{
-                if(added){
-                    res.redirect("/home");
+router.get("/addcart/:id", user_auth, async (req, res) => {
+    try {
+      const userId = req.user;
+      const id = req.params.id;
+      const product = await Product.findById(id);
+  
+      if (product) {
+        const added = await Cart.insertMany({
+          title: product.title,
+          userId: userId,
+          price: product.price
+        });
+        
+        if (added) {
+          const latestActivity = await CustomerActivityLog.findOne({ userId: req.user })
+            .sort({ timestamp: -1 })
+            .exec();
+  
+          if (latestActivity) {
+            const time = new Date();
+            const hours = time.getHours();
+            const minutes = time.getMinutes();
+            const seconds = time.getSeconds();
+            const amPm = hours >= 12 ? 'PM' : 'AM';
+            const title = product.title; // You were missing this variable
+  
+            await CustomerActivityLog.updateOne(
+              { _id: latestActivity._id },
+              {
+                $push: {
+                  activities: `${title} Added to Cart Time: ${hours}:${minutes}:${seconds} ${amPm}`
                 }
-            }).catch(err=>{
-                console.log(err);
-            })
+              }
+            );
+  
+            res.redirect("/home");
+          } else {
+            res.status(404).json('No activity found for the user');
+          }
+        } else {
+          res.status(500).json('Failed to insert the product');
         }
-       }).catch(err=>{
-        console.log(err)
-       })
-    }catch(err){
-        console.log(err);
+      }
+    } catch (err) {
+      console.log(err);
+      res.status(500).json('Internal Server Error');
     }
-
-
-})
+  });
+  
 router.get("/cart",user_auth,async(req,res)=>{
     try{
 const id =req.user;
@@ -329,64 +374,170 @@ router.get("/cancel/:id",user_auth,async(req,res)=>{
 
 //increment
 
-router.get("/increase/:id",user_auth,async(req,res)=>{
-    try{
-
-        const id=req.params.id;
-        await Cart.findByIdAndUpdate({_id:id},{$inc:{'quantity':1}}).then(async(product)=>{
-            if(product){
-                
-            res.redirect("/cart");
-                 
+router.get('/increase/:id', user_auth, async (req, res) => {
+    try {
+      const id = req.params.id;
+  
+      // Find the product by its ID and increment the quantity
+      const product = await Cart.findByIdAndUpdate(
+        id,
+        { $inc: { quantity: 1 } },
+        { new: true } // Return the updated document
+      );
+  
+      if (product) {
+        // Get the current timestamp
+        const time = new Date();
+        const hours = time.getHours();
+        const minutes = time.getMinutes();
+        const seconds = time.getSeconds();
+        const amPm = hours >= 12 ? 'PM' : 'AM';
+  
+        // Create the activity message
+        const title = product.title;
+        const activityMessage = `Increased the quantity of ${title}  Time: ${hours}:${minutes}:${seconds} ${amPm}`;
+  
+        // Find the latest activity for the user
+        const latestActivity = await CustomerActivityLog.findOne({ userId: req.user })
+          .sort({ timestamp: -1 })
+          .exec();
+  
+        if (latestActivity) {
+          // Push the activity message to the activities array
+          await CustomerActivityLog.updateOne(
+            { _id: latestActivity._id },
+            {
+              $push: {
+                activities: activityMessage,
+              },
             }
-        })
-    }catch(err){
-    console.log(err);
+          );
+  
+          res.redirect('/cart');
+        } else {
+          res.status(404).json('No activity found for the user');
+        }
+      } else {
+        res.status(500).json('Failed to update the product quantity');
+      }
+    } catch (err) {
+      console.error(err);
+      res.status(500).json('Internal Server Error');
     }
-})
+  });
+  
 //decrement
-
-router.get("/decrease/:id",user_auth,async(req,res)=>{
-    try{
-        const id=req.params.id;
-        await Cart.findByIdAndUpdate({_id:id},{$inc:{'quantity':-1}}).then(async(product)=>{
-            if(product){
-               res.redirect("/cart");
+router.get('/decrease/:id', user_auth, async (req, res) => {
+    try {
+      const id = req.params.id;
+  
+      // Find the product by its ID and decrement the quantity
+      const product = await Cart.findByIdAndUpdate(
+        id,
+        { $inc: { quantity: -1 } },
+        { new: true } // Return the updated document
+      );
+  
+      if (product) {
+        // Get the current timestamp
+        const time = new Date();
+        const hours = time.getHours();
+        const minutes = time.getMinutes();
+        const seconds = time.getSeconds();
+        const amPm = hours >= 12 ? 'PM' : 'AM';
+  
+        // Create the activity message
+        const title = product.title;
+        const activityMessage = `Decreased quantity of ${title} Time: ${hours}:${minutes}:${seconds} ${amPm}`;
+  
+        // Find the latest activity for the user
+        const latestActivity = await CustomerActivityLog.findOne({ userId: req.user })
+          .sort({ timestamp: -1 })
+          .exec();
+  
+        if (latestActivity) {
+          // Push the activity message to the activities array
+          await CustomerActivityLog.updateOne(
+            { _id: latestActivity._id },
+            {
+              $push: {
+                activities: activityMessage,
+              },
             }
-        })
-    }catch(err){
-    console.log(err);
+          );
+  
+          res.redirect('/cart');
+        } else {
+          res.status(404).json('No activity found for the user');
+        }
+      } else {
+        res.status(500).json('Failed to update the product quantity');
+      }
+    } catch (err) {
+      console.error(err);
+      res.status(500).json('Internal Server Error');
     }
-})
+  });
 
+  router.post('/create-checkout-session', user_auth, async (req, res) => {
+    try {
+      const amount = req.body.items[0].amount;
+      const session = await stripe.checkout.sessions.create({
+        payment_method_types: ['card'],
+        mode: 'payment',
+        client_reference_id: req.user,
 
-router.post("/create-checkout-session",user_auth,async(req,res)=>{
-try{
-
-    const session=await stripe.checkout.sessions.create({
-        payment_method_types:['card'],
-        mode:'payment',
-        line_items:[{
-            price_data:{
-                currency:'usd',
-                product_data:{
-                    name:"laptop"
-
-                },
-                unit_amount:req.body.items[0].amount*100
+        line_items: [
+          {
+            price_data: {
+              currency: 'usd',
+              product_data: {
+                name: 'laptop',
+              },
+              unit_amount: amount * 100,
             },
-            quantity:1
-        }],
-        success_url:`${process.env.URL}/home`,
-        cancel_url:`${process.env.URL}/cart`
-        
-    })
-    res.json({url:session.url});
+            quantity: 1,
+          },
+        ],
+        success_url: `${process.env.URL}/home`,
+        cancel_url: `${process.env.URL}/cart`,
+      });
+  
+      // Create the activity message with the amount
+      const time = new Date();
+      const hours = time.getHours();
+      const minutes = time.getMinutes();
+      const seconds = time.getSeconds();
+      const amPm = hours >= 12 ? 'PM' : 'AM';
+      const activityMessage = `Created a checkout session for a laptop purchase with amount $${amount} at ${hours}:${minutes}:${seconds} ${amPm}`;
+  
+      // Find the latest activity for the user
+      const latestActivity = await CustomerActivityLog.findOne({ userId: req.user })
+        .sort({ timestamp: -1 })
+        .exec();
+  
+      if (latestActivity) {
+        // Push the activity message to the activities array
+        await CustomerActivityLog.updateOne(
+          { _id: latestActivity._id },
+          {
+            $push: {
+              activities: activityMessage,
+            },
+          }
+        );
+  
+        res.json({ url: session.url });
+      } else {
+        res.status(404).json('No activity found for the user');
+      }
+    } catch (err) {
+      console.error(err);
+      res.status(500).json('Internal Server Error');
+    }
+  });
+  
 
-}catch(err){
-    console.log(err);
-}
-})
 
 //forget password
 
@@ -543,7 +694,25 @@ const logoutMiddleware = (req, res, next) => {
   }
 
 
-router.get("/logout",logoutMiddleware);
+router.get("/logout",async (req, res, next) => {
+    try {
+        await User.findById(req.user).then(async(user)=>{
+            if(user){
+                const customer = new CustomerActivityLog({
+                    userId: req.user, 
+                    action:'logout',
+                    username:user.username,
+                    ipAddress: req.ip,
+                  });
+                  await customer.save();
+                  next();
+            }
+        })
+    } catch (error) {
+      console.error('Error logging activity:', error);
+      next(error);
+    }
+  },logoutMiddleware);
 
 
    
